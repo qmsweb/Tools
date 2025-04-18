@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مولد QR Code - تصميم أنيق</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <style>
+        :root {
+            --black: #000000;
+            --white: #ffffff;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-500: #adb5bd;
+            --gray-800: #343a40;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Red Hat Display', sans-serif;
+        }
+        
+        body {
+            background-color: var(--white);
+            color: var(--black);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: var(--white);
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .logo-container {
+            max-width: 300px;
+            margin: 0 auto 1.5rem;
+            padding: 1rem;
+            border: 2px solid var(--black);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .logo-container img {
+            max-height: 60px;
+        }
+        
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        header p {
+            color: var(--gray-500);
+            font-size: 1rem;
+            font-weight: 400;
+        }
+        
+        main {
+            flex: 1;
+            max-width: 800px;
+            width: 90%;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .input-section {
+            background: var(--gray-100);
+            padding: 2.5rem;
+            border-radius: 0;
+            border: 1px solid var(--gray-200);
+            margin-bottom: 2rem;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+            color: var(--gray-800);
+        }
+        
+        input[type="url"] {
+            padding: 1rem;
+            border: 1px solid var(--gray-200);
+            border-radius: 0;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            background-color: var(--white);
+        }
+        
+        input[type="url"]:focus {
+            outline: none;
+            border-color: var(--black);
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+        }
+        
+        button {
+            background-color: var(--black);
+            color: var(--white);
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        
+        button:hover {
+            background-color: var(--gray-800);
+            transform: translateY(-2px);
+        }
+        
+        .result-section {
+            background: var(--gray-100);
+            padding: 2.5rem;
+            border-radius: 0;
+            border: 1px solid var(--gray-200);
+            text-align: center;
+            display: none;
+        }
+        
+        .result-section h2 {
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: var(--gray-800);
+        }
+        
+        .qr-container {
+            margin: 1.5rem auto;
+            padding: 1.5rem;
+            border: 1px solid var(--gray-200);
+            background-color: var(--white);
+            max-width: 300px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .action-buttons button {
+            flex: 1;
+            min-width: 160px;
+            max-width: 220px;
+        }
+        
+        .download-btn {
+            background-color: var(--black);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .download-btn::after {
+            content: "↓";
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+        }
+        
+        .copy-btn {
+            background-color: var(--gray-800);
+            position: relative;
+        }
+        
+        .copy-btn::after {
+            content: "⎘";
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--black);
+            color: var(--white);
+            margin-top: auto;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                padding: 1.25rem;
+            }
+            
+            .logo-container {
+                max-width: 250px;
+                margin-bottom: 1rem;
+            }
+            
+            header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .input-section, .result-section {
+                padding: 1.75rem;
+            }
+            
+            .action-buttons {
+                gap: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            header {
+                padding: 1rem;
+            }
+            
+            .logo-container {
+                max-width: 200px;
+                padding: 0.75rem;
+            }
+            
+            header h1 {
+                font-size: 1.3rem;
+            }
+            
+            header p {
+                font-size: 0.9rem;
+            }
+            
+            .input-section, .result-section {
+                padding: 1.5rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .action-buttons button {
+                width: 100%;
+                max-width: none;
+            }
+            
+            button {
+                padding: 0.9rem 1.5rem;
+            }
+            
+            .download-btn::after, .copy-btn::after {
+                right: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <img src="https://via.placeholder.com/250x60.png?text=QR+Generator" alt="شعار QR Generator">
+        </div>
+        <h1>مولد رمز QR الاحترافي</h1>
+        <p>تحويل الروابط إلى رموز QR بتصميم أنيق</p>
+    </header>
+    
+    <main>
+        <section class="input-section">
+            <div class="input-group">
+                <label for="url-input">أدخل الرابط الذي تريد تحويله:</label>
+                <input type="url" id="url-input" placeholder="https://example.com" required>
+                <button id="generate-btn">إنشاء رمز QR</button>
+            </div>
+        </section>
+        
+        <section class="result-section" id="result-section">
+            <h2>رمز QR الخاص بك</h2>
+            <div class="qr-container" id="qr-code"></div>
+            <div class="action-buttons">
+                <button class="download-btn" id="download-btn">تحميل</button>
+                <button class="copy-btn" id="copy-btn">نسخ</button>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <p>© 2023 مولد QR Code الاحترافي | تصميم أبيض وأسود أنيق</p>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlInput = document.getElementById('url-input');
+            const generateBtn = document.getElementById('generate-btn');
+            const resultSection = document.getElementById('result-section');
+            const qrCodeContainer = document.getElementById('qr-code');
+            const downloadBtn = document.getElementById('download-btn');
+            const copyBtn = document.getElementById('copy-btn');
+            
+            let qrCode = null;
+            
+            generateBtn.addEventListener('click', function() {
+                const url = urlInput.value.trim();
+                
+                if (!url) {
+                    alert('الرجاء إدخال رابط صحيح');
+                    return;
+                }
+                
+                // إنشاء QR Code جديد
+                qrCodeContainer.innerHTML = '';
+                qrCode = new QRCode(qrCodeContainer, {
+                    text: url,
+                    width: 200,
+                    height: 200,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                
+                resultSection.style.display = 'block';
+                
+                // Scroll to result
+                resultSection.scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            downloadBtn.addEventListener('click', function() {
+                if (!qrCode) return;
+                
+                const canvas = qrCodeContainer.querySelector('canvas');
+                const link = document.createElement('a');
+                link.download = 'qrcode.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                // Animation feedback
+                downloadBtn.textContent = 'تم التحميل!';
+                setTimeout(() => {
+                    downloadBtn.textContent = 'تحميل';
+                }, 2000);
+            });
+            
+            copyBtn.addEventListener('click', async function() {
+                if (!qrCode) return;
+                
+                try {
+                    const canvas = qrCodeContainer.querySelector('canvas');
+                    await navigator.clipboard.write([
+                        new ClipboardItem({
+                            'image/png': canvas.toBlob()
+                        })
+                    ]);
+                    
+                    // Animation feedback
+                    copyBtn.textContent = 'تم النسخ!';
+                    setTimeout(() => {
+                        copyBtn.textContent = 'نسخ';
+                    }, 2000);
+                } catch (err) {
+                    console.error('Error copying QR code: ', err);
+                    
+                    // Fallback for browsers that don't support ClipboardItem
+                    const canvas = qrCodeContainer.querySelector('canvas');
+                    canvas.toBlob(function(blob) {
+                        const item = new ClipboardItem({ 'image/png': blob });
+                        navigator.clipboard.write([item]).then(function() {
+                            copyBtn.textContent = 'تم النسخ!';
+                            setTimeout(() => {
+                                copyBtn.textContent = 'نسخ';
+                            }, 2000);
+                        });
+                    });
+                }
+            });
+            
+            // Handle Enter key press
+            urlInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    generateBtn.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
