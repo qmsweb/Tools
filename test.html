@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منشئ الخرائط الذهنية</title>
+    <!-- مكتبة Markmap لإنشاء الخرائط الذهنية -->
+    <script src="https://cdn.jsdelivr.net/npm/markmap-autoloader"></script>
+    <!-- مكتبة html2canvas لتحويل الخريطة إلى صورة -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <!-- مكتبة jsPDF لإنشاء ملف PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- خطوط Google للعربية -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* أنماط عامة */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+        
+        /* رأس الصفحة */
+        header {
+            background-color: #4a6fa5;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        /* زر القائمة الجانبية */
+        .menu-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* القائمة الجانبية */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100%;
+            background-color: #fff;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            padding: 1rem;
+        }
+        
+        .sidebar.active {
+            right: 0;
+        }
+        
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 1rem;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            margin-bottom: 1rem;
+        }
+        
+        .sidebar-menu a {
+            text-decoration: none;
+            color: #333;
+            font-size: 1.1rem;
+            transition: color 0.2s;
+        }
+        
+        .sidebar-menu a:hover {
+            color: #4a6fa5;
+        }
+        
+        /* المحتوى الرئيسي */
+        .container {
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        /* منطقة الإدخال */
+        .input-section {
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .input-section h2 {
+            margin-bottom: 1rem;
+            color: #4a6fa5;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        button {
+            padding: 0.5rem 1rem;
+            background-color: #4a6fa5;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: #3a5a8f;
+        }
+        
+        /* منطقة عرض الخريطة الذهنية */
+        .output-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .output-section h2 {
+            margin-bottom: 1rem;
+            color: #4a6fa5;
+        }
+        
+        #markmap {
+            width: 100%;
+            height: 500px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            overflow: auto;
+        }
+        
+        /* تذييل الصفحة */
+        footer {
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+            background-color: #4a6fa5;
+            color: white;
+        }
+        
+        /* طباعة */
+        @media print {
+            header, .input-section, footer, .buttons {
+                display: none;
+            }
+            
+            .output-section {
+                box-shadow: none;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- رأس الصفحة -->
+    <header>
+        <div class="logo">خرائط ذهنية</div>
+        <button class="menu-btn" onclick="toggleSidebar()">☰ القائمة</button>
+    </header>
+    
+    <!-- القائمة الجانبية -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>القائمة</h3>
+            <button class="close-btn" onclick="toggleSidebar()">×</button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#">الرئيسية</a></li>
+            <li><a href="#">عن الموقع</a></li>
+            <li><a href="#">الأسئلة الشائعة</a></li>
+            <li><a href="#">اتصل بنا</a></li>
+            <li><a href="#">الإعدادات</a></li>
+        </ul>
+    </div>
+    
+    <!-- المحتوى الرئيسي -->
+    <div class="container">
+        <!-- منطقة إدخال النص -->
+        <section class="input-section">
+            <h2>أدخل نصك لإنشاء خريطة ذهنية</h2>
+            <textarea id="input-text" placeholder="اكتب نصك هنا بصيغة Markdown..."></textarea>
+            <div class="buttons">
+                <button onclick="generateMindMap()">إنشاء الخريطة</button>
+                <button onclick="clearText()">مسح النص</button>
+            </div>
+        </section>
+        
+        <!-- منطقة عرض الخريطة الذهنية -->
+        <section class="output-section">
+            <h2>الخريطة الذهنية</h2>
+            <div id="markmap"></div>
+            <div class="buttons" style="margin-top: 1rem;">
+                <button onclick="saveAsPNG()">حفظ كصورة (PNG)</button>
+                <button onclick="saveAsPDF()">حفظ كملف PDF</button>
+            </div>
+        </section>
+    </div>
+    
+    <!-- تذييل الصفحة -->
+    <footer>
+        &copy; 2023 منشئ الخرائط الذهنية. جميع الحقوق محفوظة.
+    </footer>
+    
+    <script>
+        // تهيئة مكتبة jsPDF
+        const { jsPDF } = window.jspdf;
+        
+        // متغير لتخزين حالة القائمة الجانبية
+        let sidebarOpen = false;
+        
+        // وظيفة لعرض/إخفاء القائمة الجانبية
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebarOpen = !sidebarOpen;
+            sidebar.classList.toggle('active');
+        }
+        
+        // وظيفة لإنشاء الخريطة الذهنية
+        function generateMindMap() {
+            const inputText = document.getElementById('input-text').value;
+            const markmapDiv = document.getElementById('markmap');
+            
+            if (!inputText.trim()) {
+                alert('الرجاء إدخال نص لإنشاء الخريطة الذهنية');
+                return;
+            }
+            
+            // مسح المحتوى السابق
+            markmapDiv.innerHTML = '<svg id="markmap-svg" style="width: 100%; height: 100%;"></svg>';
+            
+            // إنشاء الخريطة الذهنية باستخدام Markmap
+            markmap.AutoLoader.render(
+                inputText,
+                document.getElementById('markmap-svg'),
+                {
+                    preset: 'default', // استخدام الإعدادات الافتراضية
+                    color: ['#4a6fa5', '#3a5a8f', '#2a4a7f'], // ألوان متدرجة
+                    duration: 500, // مدة الحركة عند التوسيع/الطي
+                    maxWidth: 100, // أقصى عرض للعقدة
+                    zoom: true, // تمكين التكبير/التصغير
+                    pan: true // تمكين التحريك
+                }
+            );
+        }
+        
+        // وظيفة لمسح النص
+        function clearText() {
+            document.getElementById('input-text').value = '';
+            document.getElementById('markmap').innerHTML = '';
+        }
+        
+        // وظيفة لحفظ الخريطة كصورة PNG
+        function saveAsPNG() {
+            const markmapDiv = document.getElementById('markmap');
+            
+            if (markmapDiv.innerHTML.trim() === '') {
+                alert('لا توجد خريطة ذهنية لحفظها');
+                return;
+            }
+            
+            html2canvas(markmapDiv).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'الخريطة_الذهنية.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+        
+        // وظيفة لحفظ الخريطة كملف PDF
+        function saveAsPDF() {
+            const markmapDiv = document.getElementById('markmap');
+            
+            if (markmapDiv.innerHTML.trim() === '') {
+                alert('لا توجد خريطة ذهنية لحفظها');
+                return;
+            }
+            
+            html2canvas(markmapDiv).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF({
+                    orientation: 'landscape', // اتجاه أفقي
+                    unit: 'mm'
+                });
+                
+                // حساب أبعاد الصورة لتناسب صفحة PDF
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const imgWidth = canvas.width;
+                const imgHeight = canvas.height;
+                const ratio = Math.min(pageWidth / imgWidth, pageHeight / imgHeight) * 0.95;
+                const imgX = (pageWidth - imgWidth * ratio) / 2;
+                const imgY = (pageHeight - imgHeight * ratio) / 2;
+                
+                pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+                pdf.save('الخريطة_الذهنية.pdf');
+            });
+        }
+    </script>
+</body>
+</html>
