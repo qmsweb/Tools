@@ -1,0 +1,34 @@
+{
+  "Database": [
+    {
+      "SongName": "Lost in Dreams",
+      "Link": "https://example.com/song1.mp3",
+      "ID": "A101",
+      "Artist": "Luna Ray"
+    },
+    {
+      "SongName": "Echoes of Time",
+      "Link": "https://example.com/song2.mp3",
+      "ID": "B204",
+      "Artist": "Nova Beats"
+    },
+    {
+      "SongName": "Crimson Sky",
+      "Link": "https://example.com/song3.mp3",
+      "ID": "C309",
+      "Artist": "Aria Storm"
+    },
+    {
+      "SongName": "Shadow Dance",
+      "Link": "https://example.com/song4.mp3",
+      "ID": "D412",
+      "Artist": "Zephyr"
+    },
+    {
+      "SongName": "Whispers in the Wind",
+      "Link": "https://example.com/song5.mp3",
+      "ID": "E517",
+      "Artist": "Echo Flame"
+    }
+  ]
+}
