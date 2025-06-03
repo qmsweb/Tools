@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ألوان شريط الحالة للهواتف -->
+    <meta name="theme-color" content="#1a2a6c">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="msapplication-navbutton-color" content="#1a2a6c">
     <title>روافد</title>
     <!-- رابط Font Awesome للأيقونات -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,6 +18,10 @@
             font-family: 'Arial', sans-serif;
         }
         
+        body {
+            padding-top: env(safe-area-inset-top); /* للأجهزة ذات الشاشات غير المستوية */
+        }
+        
         .topbar {
             background: linear-gradient(135deg, #1a2a6c 0%, #3a7bd5 50%, #00d2ff 100%);
             color: white;
@@ -22,9 +30,27 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            position: relative;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
             z-index: 1000;
             height: 70px;
+            /* تأمين لون الخلفية لمنع التغيير عند السحب */
+            -webkit-backdrop-filter: blur(0);
+            backdrop-filter: blur(0);
+        }
+        
+        /* تعديل للهواتف ذات الشاشات غير المستوية */
+        @supports (padding-top: env(safe-area-inset-top)) {
+            .topbar {
+                padding-top: calc(15px + env(safe-area-inset-top));
+                height: calc(70px + env(safe-area-inset-top));
+            }
+            
+            .topbar.scrolled {
+                height: calc(60px + env(safe-area-inset-top));
+            }
         }
         
         .logo-section {
@@ -35,10 +61,12 @@
         
         .logo-img {
             height: 40px;
-
+            transition: transform 0.3s ease;
         }
         
-      
+        .logo-img:hover {
+            transform: scale(1.05);
+        }
         
         .menu-icon, .search-icon {
             font-size: 24px;
@@ -79,10 +107,18 @@
             height: 35px;
         }
         
+        /* المحتوى الرئيسي */
+        .main-content {
+            margin-top: 70px;
+            padding: 20px;
+            text-align: center;
+            min-height: 1500px;
+        }
+        
         @media (max-width: 768px) {
             .topbar {
-                padding: 12px 20px;
-                height: 60px;
+                padding: calc(12px + env(safe-area-inset-top)) 20px 12px;
+                height: calc(60px + env(safe-area-inset-top));
             }
             
             .logo-img {
@@ -92,6 +128,10 @@
             .menu-icon, .search-icon {
                 font-size: 20px;
             }
+            
+            .main-content {
+                margin-top: calc(60px + env(safe-area-inset-top));
+            }
         }
     </style>
 </head>
@@ -100,7 +140,7 @@
         <!-- الجانب الأيمن (في الوضع RTL) - أيقونة القائمة -->
         <div class="logo-section">
             <i class="fas fa-bars menu-icon"></i>
-            <img src="https://github.com/qmsweb/Tools/raw/main/images/rawafid/r-logo.png" alt="Atos Logo" class="logo-img">
+            <img src="https://github.com/qmsweb/Tools/raw/main/images/rawafid/r-logo.png" alt="شعار روافد" class="logo-img">
         </div>
         
         <!-- الجانب الأيسر (في الوضع RTL) - أيقونة البحث -->
@@ -110,9 +150,9 @@
     </div>
     
     <!-- محتوى الصفحة -->
-    <div style="padding: 20px; text-align: center; height: 1500px;">
+    <div class="main-content">
         <h1>محتوى الصفحة هنا</h1>
-        <p>هذا نموذج لـ Topbar بشعار Atos وتدرج لوني جديد</p>
+        <p>مرحبًا بكم في موقع روافد</p>
     </div>
 
     <script>
@@ -125,6 +165,11 @@
                 topbar.classList.remove('scrolled');
             }
         });
+        
+        // لمنع التغيير في اللون عند السحب في متصفح سفاري
+        document.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+        }, { passive: false });
     </script>
 </body>
 </html>
