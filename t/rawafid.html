@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>روافد</title>
+    <!-- رابط Font Awesome للأيقونات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .topbar {
+            background: linear-gradient(135deg, #1a2a6c 0%, #3a7bd5 50%, #00d2ff 100%);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: relative;
+            z-index: 1000;
+            height: 70px;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+        
+        .logo-img {
+            height: 40px;
+
+        }
+        
+      
+        
+        .menu-icon, .search-icon {
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 8px;
+            border-radius: 50%;
+        }
+        
+        .menu-icon:hover, .search-icon:hover {
+            transform: scale(1.1);
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .search-icon {
+            margin-left: 15px;
+        }
+        
+        /* تأثيرات إضافية */
+        .topbar::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%);
+        }
+        
+        /* تأثيرات عند التمرير */
+        .topbar.scrolled {
+            height: 60px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .topbar.scrolled .logo-img {
+            height: 35px;
+        }
+        
+        @media (max-width: 768px) {
+            .topbar {
+                padding: 12px 20px;
+                height: 60px;
+            }
+            
+            .logo-img {
+                height: 30px;
+            }
+            
+            .menu-icon, .search-icon {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar" id="topbar">
+        <!-- الجانب الأيمن (في الوضع RTL) - أيقونة القائمة -->
+        <div class="logo-section">
+            <i class="fas fa-bars menu-icon"></i>
+            <img src="https://github.com/qmsweb/Tools/raw/main/images/rawafid/r-logo.png" alt="Atos Logo" class="logo-img">
+        </div>
+        
+        <!-- الجانب الأيسر (في الوضع RTL) - أيقونة البحث -->
+        <div>
+            <i class="fas fa-search search-icon"></i>
+        </div>
+    </div>
+    
+    <!-- محتوى الصفحة -->
+    <div style="padding: 20px; text-align: center; height: 1500px;">
+        <h1>محتوى الصفحة هنا</h1>
+        <p>هذا نموذج لـ Topbar بشعار Atos وتدرج لوني جديد</p>
+    </div>
+
+    <script>
+        // تأثير التمرير
+        window.addEventListener('scroll', function() {
+            const topbar = document.getElementById('topbar');
+            if (window.scrollY > 50) {
+                topbar.classList.add('scrolled');
+            } else {
+                topbar.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>
