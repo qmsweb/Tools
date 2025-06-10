@@ -1,240 +1,142 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>واجهة أفلام للتلفاز</title>
+  <title>Movie Carousel TV</title>
   <style>
-    /* Reset */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent; /* إزالة تأثير اللمس */
-    }
-    
-    /* Base Styles */
     body {
-      background-color: #111;
+      margin: 0;
+      background: #111;
       color: #fff;
-      font-family: Arial, sans-serif;
-      padding: 50px 0;
-      overflow-x: hidden;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      user-select: none;
-      touch-action: none; /* تعطيل اللمس */
+      font-family: sans-serif;
+      overflow: hidden;
     }
-    
-    /* Header Logo */
-    .logo {
+
+    header {
       position: absolute;
-      top: 20px;
-      right: 70px;
-      width: 150px;
-      height: 80px;
+      top: 10px;
+      right: 20px;
     }
-    
-    .logo img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
+
+    header img {
+      height: 50px;
     }
-    
-    /* Sections */
+
     .section {
-      margin: 70px 0;
+      margin-top: 100px;
     }
-    
+
     .section-title {
-      font-size: 38px;
-      margin: 0 70px 35px;
-      font-weight: bold;
-      color: #fff;
+      margin: 10px 20px;
+      font-size: 24px;
+      color: #f0f0f0;
     }
-    
-    /* Movies Row */
-    .movies-row {
+
+    .carousel {
       display: flex;
-      direction: rtl;
-      overflow-x: auto;
-      overflow-y: hidden;
-      white-space: nowrap;
-      padding: 25px 70px;
-      scroll-behavior: smooth;
-      -webkit-overflow-scrolling: touch;
+      overflow: hidden;
+      padding: 0 20px;
     }
-    
-    /* Hide scrollbar */
-    .movies-row::-webkit-scrollbar {
-      display: none;
+
+    .movie {
+      min-width: 150px;
+      height: 220px;
+      background: #444;
+      margin-right: 10px;
+      border: 3px solid transparent;
+      transition: border 0.2s;
     }
-    
-    /* Movie Item */
-    .movie-item {
-      display: inline-block;
-      width: 300px;
-      height: 400px;
-      background-color: #222;
-      margin-left: 40px;
-      font-size: 30px;
-      border-radius: 10px;
-      border: 4px solid transparent;
-      transition: transform 0.3s ease, border-color 0.3s ease;
-      flex-shrink: 0;
-      text-align: center;
-      line-height: 400px;
-      color: #fff;
+
+    .movie.selected {
+      border: 3px solid yellow;
     }
-    
-    /* Focus Styles */
-    .movie-item:focus {
-      outline: none;
-      border-color: #1E90FF;
-      transform: scale(1.07);
-      box-shadow: 0 0 30px rgba(30, 144, 255, 0.9);
-    }
-    
-    /* إخفاء مؤشر الفأرة تمامًا */
-    body, .movie-item {
-      cursor: none !important;
-    }
-    
-    /* منع أي تأثيرات لمس */
-    .movie-item {
-      pointer-events: none;
+
+    .section.selected .section-title {
+      color: #ff0;
     }
   </style>
 </head>
 <body>
-  <!-- إضافة اللوجو كصورة -->
-  <div class="logo">
-    <img src="https://raw.githubusercontent.com/qmsweb/Tools/main/images/one.png" 
-  </div>
-  
-  <main id="app">
-    <section class="section" data-row="0">
-      <h2 class="section-title">الأفلام الموصى بها</h2>
-      <div class="movies-row" id="row-0">
-        <div class="movie-item" tabindex="0" data-row="0" data-col="0">فيلم 1-1</div>
-        <div class="movie-item" tabindex="0" data-row="0" data-col="1">فيلم 1-2</div>
-        <div class="movie-item" tabindex="0" data-row="0" data-col="2">فيلم 1-3</div>
-        <div class="movie-item" tabindex="0" data-row="0" data-col="3">فيلم 1-4</div>
-        <div class="movie-item" tabindex="0" data-row="0" data-col="4">فيلم 1-5</div>
-      </div>
-    </section>
 
-    <section class="section" data-row="1">
-      <h2 class="section-title">الأكثر مشاهدة</h2>
-      <div class="movies-row" id="row-1">
-        <div class="movie-item" tabindex="0" data-row="1" data-col="0">فيلم 2-1</div>
-        <div class="movie-item" tabindex="0" data-row="1" data-col="1">فيلم 2-2</div>
-        <div class="movie-item" tabindex="0" data-row="1" data-col="2">فيلم 2-3</div>
-        <div class="movie-item" tabindex="0" data-row="1" data-col="3">فيلم 2-4</div>
-        <div class="movie-item" tabindex="0" data-row="1" data-col="4">فيلم 2-5</div>
-      </div>
-    </section>
-  </main>
+  <header>
+    <img src="https://raw.githubusercontent.com/qmsweb/Tools/main/images/one.png" alt="Logo">
+  </header>
+
+  <div id="app"></div>
 
   <script>
-    (function() {
-      // تعطيل كامل للفأرة واللمس
-      document.addEventListener('mousedown', disableInteractions);
-      document.addEventListener('mouseup', disableInteractions);
-      document.addEventListener('click', disableInteractions);
-      document.addEventListener('touchstart', disableInteractions);
-      document.addEventListener('touchend', disableInteractions);
-      document.addEventListener('touchmove', disableInteractions);
-      
-      function disableInteractions(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-      
-      // إخفاء مؤشر الفأرة
-      document.body.style.cursor = 'none';
-      
-      // تهيئة العناصر
-      const rows = document.querySelectorAll('.movies-row');
-      const items = document.querySelectorAll('.movie-item');
-      
-      // تعيين tabindex لجميع العناصر القابلة للتركيز
-      items.forEach(item => {
-        item.setAttribute('tabindex', '0');
-      });
-      
-      // دالة التركيز على عنصر مع التمرير التلقائي
-      function focusItem(rowIndex, colIndex) {
-        const target = document.querySelector(`[data-row="${rowIndex}"][data-col="${colIndex}"]`);
-        if (!target) return;
+    const categories = ['أفلام أكشن', 'أفلام دراما', 'أفلام كوميديا', 'أفلام رعب'];
+    const app = document.getElementById('app');
+    let sections = [];
+    let currentSection = 0;
+    let currentMovie = 0;
+
+    function createSections() {
+      categories.forEach((category, i) => {
+        const section = document.createElement('div');
+        section.className = 'section' + (i === 0 ? ' selected' : '');
         
-        target.focus();
-        
-        // التمرير الأفقي التلقائي
-        const rowContainer = target.parentElement;
-        const targetRect = target.getBoundingClientRect();
-        const containerRect = rowContainer.getBoundingClientRect();
-        
-        const scrollOffset = targetRect.left - containerRect.left - (containerRect.width / 2) + (targetRect.width / 2);
-        rowContainer.scrollLeft += scrollOffset;
-      }
-      
-      // التركيز الأولي على أول عنصر
-      setTimeout(() => {
-        focusItem(0, 0);
-      }, 500);
-      
-      // نظام التنقل بأزرار الريموت
-      document.addEventListener('keydown', function(e) {
-        const active = document.activeElement;
-        if (!active || !active.classList.contains('movie-item')) {
-          // إذا لم يكن هناك عنصر نشط، ركز على الأول
-          if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter'].includes(e.key)) {
-            focusItem(0, 0);
-          }
-          return;
+        const title = document.createElement('div');
+        title.className = 'section-title';
+        title.textContent = category;
+
+        const carousel = document.createElement('div');
+        carousel.className = 'carousel';
+
+        for (let j = 0; j < 15; j++) {
+          const movie = document.createElement('div');
+          movie.className = 'movie' + (j === 0 && i === 0 ? ' selected' : '');
+          carousel.appendChild(movie);
         }
-        
-        const currentRow = parseInt(active.getAttribute('data-row'));
-        const currentCol = parseInt(active.getAttribute('data-col'));
-        
-        // منع السلوك الافتراضي لكل الأزرار
-        e.preventDefault();
-        e.stopPropagation();
-        
-        switch (e.key) {
-          case 'ArrowRight':
-            // الانتقال لليسار (بصرياً)
-            focusItem(currentRow, currentCol - 1);
-            break;
-          case 'ArrowLeft':
-            // الانتقال لليمين (بصرياً)
-            focusItem(currentRow, currentCol + 1);
-            break;
-          case 'ArrowDown':
-            // الانتقال للأسفل
-            focusItem(currentRow + 1, currentCol);
-            break;
-          case 'ArrowUp':
-            // الانتقال للأعلى
-            focusItem(currentRow - 1, currentCol);
-            break;
-          case 'Enter':
-            // تنفيذ فعل عند الضغط على Enter
-            alert('تم اختيار: ' + active.textContent);
-            break;
-        }
+
+        section.appendChild(title);
+        section.appendChild(carousel);
+        app.appendChild(section);
+        sections.push(section);
       });
-      
-      // منع التمرير بالفأرة
-      rows.forEach(row => {
-        row.addEventListener('wheel', e => {
-          e.preventDefault();
-          e.stopPropagation();
+    }
+
+    function updateSelection() {
+      sections.forEach((section, sIndex) => {
+        const carousel = section.querySelector('.carousel');
+        const movies = carousel.querySelectorAll('.movie');
+        section.classList.toggle('selected', sIndex === currentSection);
+        movies.forEach((movie, mIndex) => {
+          movie.classList.toggle('selected', sIndex === currentSection && mIndex === currentMovie);
         });
+        if (sIndex === currentSection) {
+          movies[currentMovie].scrollIntoView({ behavior: 'smooth', inline: 'center' });
+        }
       });
-    })();
+
+      sections[currentSection].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const currentCarousel = sections[currentSection].querySelector('.carousel');
+      const movies = currentCarousel.querySelectorAll('.movie');
+
+      if (e.key === 'ArrowRight' && currentMovie < movies.length - 1) {
+        currentMovie++;
+        updateSelection();
+      } else if (e.key === 'ArrowLeft' && currentMovie > 0) {
+        currentMovie--;
+        updateSelection();
+      } else if (e.key === 'ArrowDown' && currentSection < sections.length - 1) {
+        currentSection++;
+        currentMovie = 0;
+        updateSelection();
+      } else if (e.key === 'ArrowUp' && currentSection > 0) {
+        currentSection--;
+        currentMovie = 0;
+        updateSelection();
+      } else if (e.key === 'Enter') {
+        alert(`✅ تم اختيار فيلم رقم ${currentMovie + 1} من قسم "${categories[currentSection]}"`);
+      }
+    });
+
+    createSections();
   </script>
+
 </body>
 </html>
