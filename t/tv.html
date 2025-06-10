@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>واجهة أفلام</title>
+  <title>واجهة أفلام للتلفاز</title>
   <style>
     * {
       margin: 0;
@@ -24,13 +24,12 @@
     }
     .movies-row {
       display: flex;
-      flex-direction: row;
-      direction: rtl;
-      gap: 16px;
-      overflow-x: hidden; /* إخفاء التمرير المباشر */
-      padding: 0 20px;
+      flex-direction: row-reverse; /* يعرض العناصر من اليمين لليسار بصرياً */
+      direction: ltr; /* لجعل التمرير والأبعاد أكثر توقعاً */
+      overflow-x: auto;
+      overflow-y: hidden;
       scroll-behavior: smooth;
-      touch-action: none; /* تعطيل التمرير باللمس */
+      padding: 0 20px;
     }
     .movie-item {
       min-width: 150px;
@@ -44,17 +43,25 @@
       outline: none;
       transition: transform 0.1s;
       flex-shrink: 0;
+      margin-inline-end: 16px; /* مسافة بين العناصر */
     }
-    .movie-item:focus {
+    .movies-row .movie-item:first-child {
+      margin-inline-end: 0;
+    }
+    .movie-item:focus-visible {
       outline: 3px solid #1E90FF;
       transform: scale(1.1);
+    }
+    /* إخفاء مؤشر الفأرة إن وُجد */
+    body, .movie-item {
+      cursor: none;
     }
   </style>
 </head>
 <body>
   <main id="app">
     <section class="section" data-row="0">
-      <h2 class="section-title">القسم الأول</h2>
+      <h2 class="section-title">أفلام عربية</h2>
       <div class="movies-row">
         <div class="movie-item" tabindex="0" data-row="0" data-col="0">فيلم 1-1</div>
         <div class="movie-item" tabindex="0" data-row="0" data-col="1">فيلم 1-2</div>
@@ -65,7 +72,7 @@
     <section class="section" data-row="1">
       <h2 class="section-title">القسم الثاني</h2>
       <div class="movies-row">
-        <!-- 15 فيلم -->
+        <!-- مثال على 15 فيلم -->
         <div class="movie-item" tabindex="0" data-row="1" data-col="0">فيلم 2-1</div>
         <div class="movie-item" tabindex="0" data-row="1" data-col="1">فيلم 2-2</div>
         <div class="movie-item" tabindex="0" data-row="1" data-col="2">فيلم 2-3</div>
@@ -106,16 +113,15 @@
   <script>
     (function() {
       const sections = Array.from(document.querySelectorAll('.section'));
-      const rows = sections.map(section => {
-        return Array.from(section.querySelectorAll('.movie-item'));
-      });
+      const rows = sections.map(section => Array.from(section.querySelectorAll('.movie-item')));
 
       function getFocusedPosition() {
         const active = document.activeElement;
         if (active && active.classList.contains('movie-item')) {
-          const row = parseInt(active.dataset.row, 10);
-          const col = parseInt(active.dataset.col, 10);
-          return { row, col };
+          return {
+            row: parseInt(active.dataset.row, 10),
+            col: parseInt(active.dataset.col, 10)
+          };
         }
         return null;
       }
@@ -129,8 +135,12 @@
         const el = rowArr[col];
         if (el) {
           el.focus();
-          // تمرير عبر JS فقط
-          el.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+          // تمرير يدوي لضمان ظهوره في الوسط
+          const container = el.parentElement;
+          const elRect = el.getBoundingClientRect();
+          const contRect = container.getBoundingClientRect();
+          const offset = (elRect.left + elRect.right)/2 - (contRect.left + contRect.right)/2;
+          container.scrollLeft += offset;
         }
       }
 
@@ -140,11 +150,13 @@
         let { row, col } = pos;
         switch (e.key) {
           case 'ArrowRight':
-            focusAt(row, col + 1);
+            // للذهاب بصريًا لليمين: col - 1
+            focusAt(row, col - 1);
             e.preventDefault();
             break;
           case 'ArrowLeft':
-            focusAt(row, col - 1);
+            // للذهاب بصريًا لليسار: col + 1
+            focusAt(row, col + 1);
             e.preventDefault();
             break;
           case 'ArrowDown':
@@ -155,16 +167,23 @@
             focusAt(row - 1, col);
             e.preventDefault();
             break;
+          case 'Enter':
+            // مثال: عند الضغط Enter يمكنك تنفيذ فعل (مثلاً فتح صفحة التفاصيل)
+            // const current = document.activeElement;
+            // handleSelectMovie(current);
+            e.preventDefault();
+            break;
         }
       });
 
-      // منع التمرير بعجلة الفأرة أو اللمس
+      // منع التمرير بالفأرة أو باللمس
       document.querySelectorAll('.movies-row').forEach(rowEl => {
         rowEl.addEventListener('wheel', e => e.preventDefault());
         rowEl.addEventListener('touchmove', e => e.preventDefault());
       });
 
       window.addEventListener('load', () => {
+        // عند التحميل، ركّز على أول عنصر
         if (rows.length && rows[0].length) {
           rows[0][0].focus();
         }
