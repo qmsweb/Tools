@@ -1,21 +1,31 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <title>Movie Carousel TV</title>
+  <title>واجهة أفلام متجاوبة</title>
   <style>
+    :root {
+      --highlight-color: red;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       background: #111;
       color: #fff;
       font-family: sans-serif;
       overflow: hidden;
+      direction: rtl;
     }
 
     header {
       position: absolute;
       top: 10px;
-      right: 20px;
+      left: 20px; /* RTL */
+      z-index: 10;
     }
 
     header img {
@@ -23,36 +33,53 @@
     }
 
     .section {
-      margin-top: 100px;
+      margin-top: 80px;
     }
 
     .section-title {
-      margin: 10px 20px;
-      font-size: 24px;
+      margin: 10px 3vw;
+      font-size: 2vw;
       color: #f0f0f0;
+      text-align: right;
     }
 
     .carousel {
       display: flex;
-      overflow: hidden;
-      padding: 0 20px;
+      flex-direction: row-reverse; /* RTL */
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 0 3vw;
+      scroll-behavior: smooth;
     }
 
     .movie {
-      min-width: 150px;
-      height: 220px;
+      flex: 0 0 auto;
+      width: 12vw;
+      height: 18vw;
       background: #444;
-      margin-right: 10px;
+      margin-left: 1vw;
       border: 3px solid transparent;
       transition: border 0.2s;
+      border-radius: 6px;
     }
 
     .movie.selected {
-      border: 3px solid yellow;
+      border: 3px solid var(--highlight-color);
     }
 
     .section.selected .section-title {
-      color: #ff0;
+      color: var(--highlight-color);
+    }
+
+    @media (max-width: 768px) {
+      .movie {
+        width: 30vw;
+        height: 45vw;
+      }
+
+      .section-title {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
@@ -75,7 +102,7 @@
       categories.forEach((category, i) => {
         const section = document.createElement('div');
         section.className = 'section' + (i === 0 ? ' selected' : '');
-        
+
         const title = document.createElement('div');
         title.className = 'section-title';
         title.textContent = category;
@@ -104,6 +131,7 @@
         movies.forEach((movie, mIndex) => {
           movie.classList.toggle('selected', sIndex === currentSection && mIndex === currentMovie);
         });
+
         if (sIndex === currentSection) {
           movies[currentMovie].scrollIntoView({ behavior: 'smooth', inline: 'center' });
         }
@@ -116,10 +144,11 @@
       const currentCarousel = sections[currentSection].querySelector('.carousel');
       const movies = currentCarousel.querySelectorAll('.movie');
 
-      if (e.key === 'ArrowRight' && currentMovie < movies.length - 1) {
+      // RTL: اليسار ← التالي
+      if (e.key === 'ArrowLeft' && currentMovie < movies.length - 1) {
         currentMovie++;
         updateSelection();
-      } else if (e.key === 'ArrowLeft' && currentMovie > 0) {
+      } else if (e.key === 'ArrowRight' && currentMovie > 0) {
         currentMovie--;
         updateSelection();
       } else if (e.key === 'ArrowDown' && currentSection < sections.length - 1) {
@@ -131,7 +160,7 @@
         currentMovie = 0;
         updateSelection();
       } else if (e.key === 'Enter') {
-        alert(`✅ تم اختيار فيلم رقم ${currentMovie + 1} من قسم "${categories[currentSection]}"`);
+        alert(`🎬 تم اختيار فيلم رقم ${currentMovie + 1} من قسم "${categories[currentSection]}"`);
       }
     });
 
