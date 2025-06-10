@@ -3,140 +3,153 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>موقع الأفلام</title>
+  <title>واجهة أفلام</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      background: #000;
+      background-color: #000;
       color: #fff;
       font-family: sans-serif;
-      padding: 20px;
-      overflow: hidden;
     }
-    h1 {
-      color: #e50914;
-      text-align: center;
-      margin-bottom: 30px;
-    }
+
     .section {
-      margin-bottom: 40px;
+      margin: 20px 0;
     }
+
     .section-title {
-      font-size: 1.5rem;
-      margin-bottom: 10px;
+      font-size: 1.2rem;
+      margin: 0 20px 10px;
     }
-    .slider {
+
+    .movies-row {
       display: flex;
-      gap: 15px;
-      overflow-x: auto;
-      scroll-behavior: smooth;
-      scrollbar-width: none; /* Firefox */
-    }
-    .slider::-webkit-scrollbar {
-      display: none; /* Chrome/Safari */
-    }
-    .movie {
-      min-width: 200px;
-      height: 300px;
-      background: #222;
-      border-radius: 5px;
+      flex-direction: row;
+      direction: rtl;
+      gap: 16px;
       overflow: hidden;
-      position: relative;
-      transition: transform 0.3s, box-shadow 0.3s;
-      outline: none;
-      flex-shrink: 0;
+      padding: 0 20px;
     }
-    .movie img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .movie-title {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      text-align: center;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 8px;
+
+    .movie-item {
+      min-width: 150px;
+      height: 200px;
+      background-color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 1rem;
+      border-radius: 4px;
+      outline: none;
+      transition: transform 0.1s;
     }
-    .movie.focused {
+
+    .movie-item:focus {
+      outline: 3px solid #1E90FF;
       transform: scale(1.1);
-      box-shadow: 0 0 10px #e50914;
-      z-index: 10;
     }
   </style>
 </head>
 <body>
-  <h1>🎬 موقع الأفلام</h1>
-
-  <div class="section" data-section>
-    <h2 class="section-title">الأكثر مشاهدة</h2>
-    <div class="slider" data-slider>
-      <div class="movie"><img src="https://source.unsplash.com/200x300/?action" /><div class="movie-title">أكشن</div></div>
-      <div class="movie"><img src="https://source.unsplash.com/200x300/?comedy" /><div class="movie-title">كوميديا</div></div>
-      <div class="movie"><img src="https://source.unsplash.com/200x300/?drama" /><div class="movie-title">دراما</div></div>
-      <div class="movie"><img src="https://source.unsplash.com/200x300/?horror" /><div class="movie-title">رعب</div></div>
-      <div class="movie"><img src="https://source.unsplash.com/200x300/?thriller" /><div class="movie-title">تشويق</div></div>
-    </div>
-  </div>
-
-  <div class="section" data-section>
-    <h2 class="section-title">الأفلام الجديدة</h2>
-    <div class="slider" data-slider>
-      <div class="movie"><img src="https://source.unsplash.com/200x300/?new-movie" /><div class="movie-title">جديد 1</div></div>
-      <div class="movie"><img src="https://source.unsplash.com/200x300/?cinema" /><div class="movie-title">جديد 2</div></div>
-      <div class="movie"><img src="https://source.unsplash.com/200x300/?release" /><div class="movie-title">جديد 3</div></div>
-      <div class="movie"><img src="https://source.unsplash.com/200x300/?blockbuster" /><div class="movie-title">جديد 4</div></div>
-    </div>
-  </div>
-
-  <div class="section" data-section>
-    <h2 class="section-title">الأفلام العائلية</h2>
-    <div class="slider" data-slider>
-      <div class="movie"><img src="https://source.unsplash.com/200x300/?family" /><div class="movie-title">عائلي 1</div></div>
-      <div class="movie"><img src="https://source.unsplash.com/200x300/?kids" /><div class="movie-title">عائلي 2</div></div>
-      <div class="movie"><img src="https://source.unsplash.com/200x300/?cartoon" /><div class="movie-title">عائلي 3</div></div>
-    </div>
-  </div>
+  <main id="app">
+    <section class="section" data-row="0">
+      <h2 class="section-title">القسم الأول</h2>
+      <div class="movies-row">
+        <div class="movie-item" tabindex="0" data-row="0" data-col="0">فيلم 1-1</div>
+        <div class="movie-item" tabindex="0" data-row="0" data-col="1">فيلم 1-2</div>
+        <div class="movie-item" tabindex="0" data-row="0" data-col="2">فيلم 1-3</div>
+      </div>
+    </section>
+    <section class="section" data-row="1">
+      <h2 class="section-title">القسم الثاني</h2>
+      <div class="movies-row">
+        <div class="movie-item" tabindex="0" data-row="1" data-col="0">فيلم 2-1</div>
+        <div class="movie-item" tabindex="0" data-row="1" data-col="1">فيلم 2-2</div>
+        <div class="movie-item" tabindex="0" data-row="1" data-col="2">فيلم 2-3</div>
+      </div>
+    </section>
+    <section class="section" data-row="2">
+      <h2 class="section-title">القسم الثالث</h2>
+      <div class="movies-row">
+        <div class="movie-item" tabindex="0" data-row="2" data-col="0">فيلم 3-1</div>
+        <div class="movie-item" tabindex="0" data-row="2" data-col="1">فيلم 3-2</div>
+        <div class="movie-item" tabindex="0" data-row="2" data-col="2">فيلم 3-3</div>
+      </div>
+    </section>
+    <section class="section" data-row="3">
+      <h2 class="section-title">القسم الرابع</h2>
+      <div class="movies-row">
+        <div class="movie-item" tabindex="0" data-row="3" data-col="0">فيلم 4-1</div>
+        <div class="movie-item" tabindex="0" data-row="3" data-col="1">فيلم 4-2</div>
+        <div class="movie-item" tabindex="0" data-row="3" data-col="2">فيلم 4-3</div>
+      </div>
+    </section>
+  </main>
 
   <script>
-    const sections = document.querySelectorAll("[data-section]");
-    let currentSectionIndex = 0;
-    let currentItemIndex = 0;
-
-    function updateFocus() {
-      sections.forEach((section, sIdx) => {
-        const movies = section.querySelectorAll(".movie");
-        movies.forEach((movie, mIdx) => {
-          movie.classList.remove("focused");
-          if (sIdx === currentSectionIndex && mIdx === currentItemIndex) {
-            movie.classList.add("focused");
-            movie.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-          }
-        });
+    (function() {
+      const sections = Array.from(document.querySelectorAll('.section'));
+      const rows = sections.map(section => {
+        return Array.from(section.querySelectorAll('.movie-item'));
       });
-    }
 
-    updateFocus();
-
-    document.addEventListener("keydown", (e) => {
-      const currentSlider = sections[currentSectionIndex].querySelectorAll(".movie");
-      if (e.key === "ArrowRight" && currentItemIndex < currentSlider.length - 1) {
-        currentItemIndex++;
-      } else if (e.key === "ArrowLeft" && currentItemIndex > 0) {
-        currentItemIndex--;
-      } else if (e.key === "ArrowDown" && currentSectionIndex < sections.length - 1) {
-        currentSectionIndex++;
-        const newSlider = sections[currentSectionIndex].querySelectorAll(".movie");
-        currentItemIndex = Math.min(currentItemIndex, newSlider.length - 1);
-      } else if (e.key === "ArrowUp" && currentSectionIndex > 0) {
-        currentSectionIndex--;
-        const newSlider = sections[currentSectionIndex].querySelectorAll(".movie");
-        currentItemIndex = Math.min(currentItemIndex, newSlider.length - 1);
+      function getFocusedPosition() {
+        const active = document.activeElement;
+        if (active && active.classList.contains('movie-item')) {
+          const row = parseInt(active.dataset.row, 10);
+          const col = parseInt(active.dataset.col, 10);
+          return { row, col };
+        }
+        return null;
       }
-      updateFocus();
-    });
+
+      function focusAt(row, col) {
+        if (row < 0 || row >= rows.length) return;
+        const rowArr = rows[row];
+        if (!rowArr) return;
+        if (col < 0) col = 0;
+        if (col >= rowArr.length) col = rowArr.length - 1;
+        const el = rowArr[col];
+        if (el) {
+          el.focus();
+          el.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+        }
+      }
+
+      window.addEventListener('keydown', function(e) {
+        const pos = getFocusedPosition();
+        if (!pos) return;
+        let { row, col } = pos;
+        switch (e.key) {
+          case 'ArrowRight':
+            focusAt(row, col + 1);
+            e.preventDefault();
+            break;
+          case 'ArrowLeft':
+            focusAt(row, col - 1);
+            e.preventDefault();
+            break;
+          case 'ArrowDown':
+            focusAt(row + 1, col);
+            e.preventDefault();
+            break;
+          case 'ArrowUp':
+            focusAt(row - 1, col);
+            e.preventDefault();
+            break;
+        }
+      });
+
+      window.addEventListener('load', () => {
+        if (rows.length && rows[0].length) {
+          rows[0][0].focus();
+        }
+      });
+    })();
   </script>
 </body>
 </html>
