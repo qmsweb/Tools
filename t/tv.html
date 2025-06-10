@@ -26,6 +26,21 @@
       touch-action: none; /* تعطيل اللمس */
     }
     
+    /* Header Logo */
+    .logo {
+      position: absolute;
+      top: 20px;
+      right: 70px;
+      width: 150px;
+      height: 80px;
+    }
+    
+    .logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    
     /* Sections */
     .section {
       margin: 70px 0;
@@ -72,11 +87,6 @@
       color: #fff;
     }
     
-    /* إزالة المسافة من أول عنصر */
-    .movie-item:first-child {
-      margin-left: 0;
-    }
-    
     /* Focus Styles */
     .movie-item:focus {
       outline: none;
@@ -97,6 +107,11 @@
   </style>
 </head>
 <body>
+  <!-- إضافة اللوجو كصورة -->
+  <div class="logo">
+    <img src="https://raw.githubusercontent.com/qmsweb/Tools/main/images/one.png" 
+  </div>
+  
   <main id="app">
     <section class="section" data-row="0">
       <h2 class="section-title">الأفلام الموصى بها</h2>
