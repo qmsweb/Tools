@@ -10,31 +10,28 @@
       padding: 0;
       box-sizing: border-box;
     }
-
     body {
       background-color: #000;
       color: #fff;
       font-family: sans-serif;
     }
-
     .section {
       margin: 20px 0;
     }
-
     .section-title {
       font-size: 1.2rem;
       margin: 0 20px 10px;
     }
-
     .movies-row {
       display: flex;
       flex-direction: row;
       direction: rtl;
       gap: 16px;
-      overflow: hidden;
+      overflow-x: hidden; /* إخفاء التمرير المباشر */
       padding: 0 20px;
+      scroll-behavior: smooth;
+      touch-action: none; /* تعطيل التمرير باللمس */
     }
-
     .movie-item {
       min-width: 150px;
       height: 200px;
@@ -46,8 +43,8 @@
       border-radius: 4px;
       outline: none;
       transition: transform 0.1s;
+      flex-shrink: 0;
     }
-
     .movie-item:focus {
       outline: 3px solid #1E90FF;
       transform: scale(1.1);
@@ -64,14 +61,29 @@
         <div class="movie-item" tabindex="0" data-row="0" data-col="2">فيلم 1-3</div>
       </div>
     </section>
+
     <section class="section" data-row="1">
       <h2 class="section-title">القسم الثاني</h2>
       <div class="movies-row">
+        <!-- 15 فيلم -->
         <div class="movie-item" tabindex="0" data-row="1" data-col="0">فيلم 2-1</div>
         <div class="movie-item" tabindex="0" data-row="1" data-col="1">فيلم 2-2</div>
         <div class="movie-item" tabindex="0" data-row="1" data-col="2">فيلم 2-3</div>
+        <div class="movie-item" tabindex="0" data-row="1" data-col="3">فيلم 2-4</div>
+        <div class="movie-item" tabindex="0" data-row="1" data-col="4">فيلم 2-5</div>
+        <div class="movie-item" tabindex="0" data-row="1" data-col="5">فيلم 2-6</div>
+        <div class="movie-item" tabindex="0" data-row="1" data-col="6">فيلم 2-7</div>
+        <div class="movie-item" tabindex="0" data-row="1" data-col="7">فيلم 2-8</div>
+        <div class="movie-item" tabindex="0" data-row="1" data-col="8">فيلم 2-9</div>
+        <div class="movie-item" tabindex="0" data-row="1" data-col="9">فيلم 2-10</div>
+        <div class="movie-item" tabindex="0" data-row="1" data-col="10">فيلم 2-11</div>
+        <div class="movie-item" tabindex="0" data-row="1" data-col="11">فيلم 2-12</div>
+        <div class="movie-item" tabindex="0" data-row="1" data-col="12">فيلم 2-13</div>
+        <div class="movie-item" tabindex="0" data-row="1" data-col="13">فيلم 2-14</div>
+        <div class="movie-item" tabindex="0" data-row="1" data-col="14">فيلم 2-15</div>
       </div>
     </section>
+
     <section class="section" data-row="2">
       <h2 class="section-title">القسم الثالث</h2>
       <div class="movies-row">
@@ -80,6 +92,7 @@
         <div class="movie-item" tabindex="0" data-row="2" data-col="2">فيلم 3-3</div>
       </div>
     </section>
+
     <section class="section" data-row="3">
       <h2 class="section-title">القسم الرابع</h2>
       <div class="movies-row">
@@ -116,6 +129,7 @@
         const el = rowArr[col];
         if (el) {
           el.focus();
+          // تمرير عبر JS فقط
           el.scrollIntoView({ behavior: 'smooth', inline: 'center' });
         }
       }
@@ -142,6 +156,12 @@
             e.preventDefault();
             break;
         }
+      });
+
+      // منع التمرير بعجلة الفأرة أو اللمس
+      document.querySelectorAll('.movies-row').forEach(rowEl => {
+        rowEl.addEventListener('wheel', e => e.preventDefault());
+        rowEl.addEventListener('touchmove', e => e.preventDefault());
       });
 
       window.addEventListener('load', () => {
