@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>تشغيل مسلسل</title>
+  <style>
+    :root {
+      --highlight-color: red;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #111;
+      color: #fff;
+      font-family: sans-serif;
+      overflow: hidden;
+      direction: rtl;
+    }
+
+    header {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      z-index: 10;
+    }
+
+    header img {
+      height: 50px;
+    }
+
+    .container {
+      margin-top: 80px;
+      padding: 0 3vw;
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: flex-start;
+      gap: 3vw;
+    }
+
+    .poster {
+      width: 20vw;
+      height: 30vw;
+      background: #333;
+      border-radius: 10px;
+      background-image: url('https://via.placeholder.com/300x450?text=صورة+المسلسل');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .info {
+      flex: 1;
+    }
+
+    .title {
+      font-size: 2.5vw;
+      margin-bottom: 20px;
+      color: #f0f0f0;
+    }
+
+    .episode-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1vw;
+    }
+
+    .episode {
+      width: 8vw;
+      height: 4vw;
+      background: #444;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid transparent;
+      transition: border 0.2s;
+    }
+
+    .episode.selected {
+      border-color: var(--highlight-color);
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      .poster {
+        width: 40vw;
+        height: 60vw;
+      }
+
+      .title {
+        font-size: 20px;
+      }
+
+      .episode {
+        width: 18vw;
+        height: 8vw;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="https://raw.githubusercontent.com/qmsweb/Tools/main/images/one.png" alt="Logo">
+  </header>
+
+  <div class="container">
+    <div class="poster"></div>
+    <div class="info">
+      <div class="title">اسم المسلسل</div>
+      <div class="episode-list" id="episodeList"></div>
+    </div>
+  </div>
+
+  <script>
+    const episodeList = document.getElementById('episodeList');
+    let totalEpisodes = 20;
+    let currentEpisode = 0;
+
+    function createEpisodes() {
+      for (let i = 0; i < totalEpisodes; i++) {
+        const ep = document.createElement('div');
+        ep.className = 'episode' + (i === 0 ? ' selected' : '');
+        ep.textContent = `حلقة ${i + 1}`;
+        episodeList.appendChild(ep);
+      }
+    }
+
+    function updateEpisodeSelection() {
+      const episodes = document.querySelectorAll('.episode');
+      episodes.forEach((ep, index) => {
+        ep.classList.toggle('selected', index === currentEpisode);
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' && currentEpisode < totalEpisodes - 1) {
+        currentEpisode++;
+        updateEpisodeSelection();
+      } else if (e.key === 'ArrowRight' && currentEpisode > 0) {
+        currentEpisode--;
+        updateEpisodeSelection();
+      } else if (e.key === 'Enter') {
+        alert(`🎬 تم اختيار حلقة ${currentEpisode + 1}`);
+      }
+    });
+
+    createEpisodes();
+  </script>
+
+</body>
+</html>
