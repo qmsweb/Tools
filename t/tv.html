@@ -15,11 +15,12 @@
       background: #111;
       color: #fff;
       font-family: sans-serif;
-      overflow: hidden;
+      overflow-y: auto;    /* السماح بالتمرير العمودي */
+      overflow-x: hidden;  /* منع التمرير الأفقي العام */
       direction: rtl;
     }
     header {
-      position: absolute;
+      position: fixed; /* تثبيت الشعار في الأعلى */
       top: 10px;
       right: 20px;
       z-index: 10;
@@ -27,8 +28,14 @@
     header img {
       height: 50px;
     }
+    #app {
+      padding-top: 70px; /* لتفادي تراكب المحتوى مع الهيدر */
+    }
     .section {
-      margin-top: 80px;
+      margin: 40px 0; /* مسافة بين الأقسام */
+      /* يمكن ضبط min-height إذا أردت أن تملأ كل قسم الشاشة:
+         min-height: calc(100vh - 70px);
+      */
     }
     .section-title {
       margin: 10px 3vw;
@@ -39,11 +46,11 @@
     .carousel {
       display: flex;
       flex-direction: row;
-      overflow-x: auto; /* بدل overflow: hidden */
-      scroll-behavior: smooth; /* تمرير سلس */
+      overflow-x: auto; /* تمرير أفقي داخلي */
+      scroll-behavior: smooth;
       padding: 0 3vw;
     }
-    /* لإخفاء شريط التمرير إن رغبت */
+    /* إخفاء شريط التمرير الأفقي إن أحببت */
     .carousel::-webkit-scrollbar {
       display: none;
     }
@@ -84,7 +91,7 @@
   </header>
   <div id="app"></div>
   <script>
-    const categories = ['محتوى أصلي', 'أفلام دراما', 'أفلام كوميديا', 'أفلام رعب'];
+    const categories = ['محتوى جديد', 'يعرض قريبًا', 'أفلام كوميديا', 'أفلام رعب'];
     const app = document.getElementById('app');
     let sections = [];
     let currentSection = 0;
@@ -116,29 +123,30 @@
     }
 
     function updateSelection() {
+      // تحديث الكلاسات
       sections.forEach((section, sIndex) => {
-        const carousel = section.querySelector('.carousel');
-        const movies = carousel.querySelectorAll('.movie');
-
         section.classList.toggle('selected', sIndex === currentSection);
+        const movies = section.querySelectorAll('.movie');
         movies.forEach((movie, mIndex) => {
           movie.classList.toggle('selected', sIndex === currentSection && mIndex === currentMovie);
         });
-
-        if (sIndex === currentSection) {
-          // تمرير العنصر المحدد إلى المنتصف
-          movies[currentMovie].scrollIntoView({
-            behavior: 'smooth',
-            inline: 'center',
-            block: 'nearest'
-          });
-        }
       });
-      // لتمييز القسم في العرض العمومي لو احتجنا
+
+      // تمرير أفقي للعنصر المحدد داخل الكاروسيل الحالي
+      const carousel = sections[currentSection].querySelector('.carousel');
+      const movies = carousel.querySelectorAll('.movie');
+      const movie = movies[currentMovie];
+      const offset = movie.offsetLeft - (carousel.clientWidth - movie.clientWidth) / 2;
+      carousel.scrollTo({ left: offset, behavior: 'smooth' });
+
+      // تمرير عمودي لإظهار القسم الحالي في منتصف الشاشة
       sections[currentSection].scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     document.addEventListener('keydown', (e) => {
+      if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) {
+        e.preventDefault(); // منع التمرير الافتراضي للصفحة
+      }
       const currentCarousel = sections[currentSection].querySelector('.carousel');
       const movies = currentCarousel.querySelectorAll('.movie');
 
@@ -162,6 +170,8 @@
     });
 
     createSections();
+    // تأكد من تمرير القسم الأول للعرض إن لزم
+    sections[currentSection]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   </script>
 </body>
 </html>
