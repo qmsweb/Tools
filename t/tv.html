@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <title>واجهة أفلام متجاوبة</title>
+  <title>واجهة أفلام للريموت</title>
   <style>
     :root {
       --highlight-color: red;
@@ -24,7 +24,7 @@
     header {
       position: absolute;
       top: 10px;
-      left: 20px; /* RTL */
+      left: 20px;
       z-index: 10;
     }
 
@@ -45,11 +45,9 @@
 
     .carousel {
       display: flex;
-      flex-direction: row-reverse; /* RTL */
-      overflow-x: auto;
-      overflow-y: hidden;
+      flex-direction: row-reverse;
+      overflow: hidden; /* 🚫 لا scroll يدوي */
       padding: 0 3vw;
-      scroll-behavior: smooth;
     }
 
     .movie {
@@ -127,13 +125,18 @@
       sections.forEach((section, sIndex) => {
         const carousel = section.querySelector('.carousel');
         const movies = carousel.querySelectorAll('.movie');
+
         section.classList.toggle('selected', sIndex === currentSection);
         movies.forEach((movie, mIndex) => {
           movie.classList.toggle('selected', sIndex === currentSection && mIndex === currentMovie);
         });
 
         if (sIndex === currentSection) {
-          movies[currentMovie].scrollIntoView({ behavior: 'smooth', inline: 'center' });
+          movies[currentMovie].scrollIntoView({
+            behavior: 'smooth',
+            inline: 'center',
+            block: 'nearest'
+          });
         }
       });
 
@@ -144,7 +147,6 @@
       const currentCarousel = sections[currentSection].querySelector('.carousel');
       const movies = currentCarousel.querySelectorAll('.movie');
 
-      // RTL: اليسار ← التالي
       if (e.key === 'ArrowLeft' && currentMovie < movies.length - 1) {
         currentMovie++;
         updateSelection();
