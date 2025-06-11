@@ -7,11 +7,9 @@
     :root {
       --highlight-color: red;
     }
-
     * {
       box-sizing: border-box;
     }
-
     body {
       margin: 0;
       background: #111;
@@ -20,36 +18,39 @@
       overflow: hidden;
       direction: rtl;
     }
-
     header {
       position: absolute;
       top: 10px;
       right: 20px;
       z-index: 10;
     }
-
     header img {
       height: 50px;
     }
-
     .section {
       margin-top: 80px;
     }
-
     .section-title {
       margin: 10px 3vw;
       font-size: 2vw;
       color: #f0f0f0;
       text-align: right;
     }
-
     .carousel {
       display: flex;
       flex-direction: row;
-      overflow: hidden; /* 🚫 لا scroll يدوي */
+      overflow-x: auto; /* بدل overflow: hidden */
+      scroll-behavior: smooth; /* تمرير سلس */
       padding: 0 3vw;
     }
-
+    /* لإخفاء شريط التمرير إن رغبت */
+    .carousel::-webkit-scrollbar {
+      display: none;
+    }
+    .carousel {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
     .movie {
       flex: 0 0 auto;
       width: 12vw;
@@ -60,21 +61,17 @@
       transition: border 0.2s;
       border-radius: 6px;
     }
-
     .movie.selected {
       border: 3px solid var(--highlight-color);
     }
-
     .section.selected .section-title {
       color: var(--highlight-color);
     }
-
     @media (max-width: 768px) {
       .movie {
         width: 30vw;
         height: 45vw;
       }
-
       .section-title {
         font-size: 18px;
       }
@@ -82,15 +79,12 @@
   </style>
 </head>
 <body>
-
   <header>
     <img src="https://raw.githubusercontent.com/qmsweb/Tools/main/images/one.png" alt="Logo">
   </header>
-
   <div id="app"></div>
-
   <script>
-    const categories = ['أفلام أكشن', 'أفلام دراما', 'أفلام كوميديا', 'أفلام رعب'];
+    const categories = ['محتوى أصلي', 'أفلام دراما', 'أفلام كوميديا', 'أفلام رعب'];
     const app = document.getElementById('app');
     let sections = [];
     let currentSection = 0;
@@ -132,6 +126,7 @@
         });
 
         if (sIndex === currentSection) {
+          // تمرير العنصر المحدد إلى المنتصف
           movies[currentMovie].scrollIntoView({
             behavior: 'smooth',
             inline: 'center',
@@ -139,7 +134,7 @@
           });
         }
       });
-
+      // لتمييز القسم في العرض العمومي لو احتجنا
       sections[currentSection].scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
@@ -168,6 +163,5 @@
 
     createSections();
   </script>
-
 </body>
 </html>
