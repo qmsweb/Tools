@@ -13,24 +13,20 @@
     body {
       margin: 0;
       background-color: black;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      overflow: hidden;
     }
 
     .player-container {
       position: relative;
-      width: 100%;
-      max-width: 100vw;
-      max-height: 100vh;
-      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
     }
 
     video {
       width: 100%;
-      height: auto;
-      outline: none;
+      height: 100%;
+      object-fit: contain;
+      background: black;
     }
 
     .controls {
@@ -43,6 +39,12 @@
       align-items: center;
       padding: 10px;
       gap: 15px;
+      transition: opacity 0.3s ease;
+    }
+
+    .controls.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
 
     .controls i {
@@ -70,13 +72,13 @@
 </head>
 <body>
   <div class="player-container">
-    <video id="video" tabindex="0">
+    <video id="video" autoplay muted playsinline>
       <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" type="video/mp4" />
       Your browser does not support the video tag.
     </video>
 
-    <div class="controls">
-      <i id="playPause" class="ph ph-play"></i>
+    <div id="controls" class="controls hidden">
+      <i id="playPause" class="ph ph-pause"></i>
       <div class="progress-bar">
         <div id="progress" class="progress"></div>
       </div>
@@ -85,9 +87,23 @@
 
   <script>
     const video = document.getElementById("video");
+    const controls = document.getElementById("controls");
     const playPauseIcon = document.getElementById("playPause");
     const progressBar = document.getElementById("progress");
 
+    // تشغيل تلقائي (مع كتم الصوت لأن بعض الأجهزة تحظر التشغيل التلقائي دون كتم)
+    window.onload = () => {
+      video.play();
+      video.focus();
+    };
+
+    // تحديث شريط التقدم
+    video.ontimeupdate = () => {
+      const percent = (video.currentTime / video.duration) * 100;
+      progressBar.style.width = percent + "%";
+    };
+
+    // تبديل تشغيل/إيقاف
     function togglePlayPause() {
       if (video.paused) {
         video.play();
@@ -98,31 +114,32 @@
       }
     }
 
-    function updateProgress() {
-      const percent = (video.currentTime / video.duration) * 100;
-      progressBar.style.width = percent + "%";
+    // إظهار / إخفاء الشريط
+    function toggleControls() {
+      controls.classList.toggle("hidden");
     }
 
+    // التحكم بزر Enter والسهام
     document.addEventListener("keydown", (e) => {
       switch (e.key) {
+        case "Enter":
+        case "OK":
+          toggleControls();
+          break;
         case "ArrowRight":
           video.currentTime += 10;
           break;
         case "ArrowLeft":
           video.currentTime -= 10;
           break;
-        case "Enter":
-        case "OK":
         case " ":
           togglePlayPause();
           break;
       }
     });
 
+    // دعم الضغط على الأيقونة بالماوس
     playPauseIcon.onclick = togglePlayPause;
-    video.ontimeupdate = updateProgress;
-
-    window.onload = () => video.focus();
   </script>
 </body>
 </html>
