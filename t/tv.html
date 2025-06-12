@@ -9,7 +9,6 @@
     }
     * {
       box-sizing: border-box;
-      /* تعطيل اختيار النص لتجنب سلوك غير مرغوب */
       user-select: none;
     }
     body {
@@ -17,12 +16,12 @@
       background: #111;
       color: #fff;
       font-family: sans-serif;
-      overflow-y: auto;    /* السماح بالتمرير العمودي برمجياً عند التنقل بين الأقسام */
-      overflow-x: hidden;  /* منع التمرير الأفقي العام */
+      overflow-y: auto;
+      overflow-x: hidden;
       direction: rtl;
     }
     header {
-      position: fixed; /* تثبيت الشعار في الأعلى */
+      position: fixed;
       top: 10px;
       right: 20px;
       z-index: 10;
@@ -31,7 +30,7 @@
       height: 50px;
     }
     #app {
-      padding-top: 70px; /* لتفادي تراكب المحتوى مع الهيدر */
+      padding-top: 70px;
     }
     .section {
       margin: 40px 0;
@@ -45,10 +44,9 @@
     .carousel {
       display: flex;
       flex-direction: row;
-      overflow-x: hidden; /* منع التمرير اليدوي أو لمسي، لكن سنستخدم scrollLeft برمجياً */
+      overflow-x: hidden;
       scroll-behavior: smooth;
       padding: 0 3vw;
-      /* تعطيل تفاعلات اللمس أو الفأرة */
       touch-action: none;
     }
     .movie {
@@ -60,6 +58,8 @@
       border: 3px solid transparent;
       transition: border 0.2s;
       border-radius: 6px;
+      background-size: cover;
+      background-position: center;
     }
     .movie.selected {
       border: 3px solid var(--highlight-color);
@@ -77,96 +77,135 @@
       }
     }
   </style>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
   <header>
     <img src="https://raw.githubusercontent.com/qmsweb/Tools/main/images/one.png" alt="Logo">
   </header>
   <div id="app"></div>
+
   <script>
-    const categories = ['مسلسلات جديدة', 'أفلام دراما', 'أفلام كوميديا', 'أفلام رعب'];
-    const app = document.getElementById('app');
-    let sections = [];
-    let currentSection = 0;
-    let currentMovie = 0;
+    const firebaseConfig = {
+      apiKey: "AIzaSyDErdK7mjrXUtBYR28U7JIpbFi5RHWM9zM",
+      authDomain: "momentschat.firebaseapp.com",
+      databaseURL: "https://momentschat.firebaseio.com",
+      projectId: "momentschat",
+      storageBucket: "momentschat.appspot.com",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "1:866549697398:android:024dd3bf3b81d1adf78857"
+    };
 
-    function createSections() {
-      categories.forEach((category, i) => {
-        const section = document.createElement('div');
-        section.className = 'section' + (i === 0 ? ' selected' : '');
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-        const title = document.createElement('div');
-        title.className = 'section-title';
-        title.textContent = category;
+    function loadVideos() {
+      const app = document.getElementById('app');
+      let sections = [];
+      let currentSection = 0;
+      let currentMovie = 0;
 
-        const carousel = document.createElement('div');
-        carousel.className = 'carousel';
+      const videosRef = db.ref("mtnbi_video").orderByKey();
 
-        for (let j = 0; j < 15; j++) {
-          const movie = document.createElement('div');
-          movie.className = 'movie' + (j === 0 && i === 0 ? ' selected' : '');
-          carousel.appendChild(movie);
+      videosRef.once("value", (snapshot) => {
+        const videos = snapshot.val();
+        if (!videos) return;
+
+        const categorized = {};
+        for (let id in videos) {
+          const video = videos[id];
+          const cat = video.category || 'محتوى أصلي';
+          if (!categorized[cat]) categorized[cat] = [];
+          categorized[cat].push({ ...video, id });
         }
 
-        section.appendChild(title);
-        section.appendChild(carousel);
-        app.appendChild(section);
-        sections.push(section);
-      });
-    }
+        const categoryNames = Object.keys(categorized);
+        categoryNames.forEach((catName, i) => {
+          const section = document.createElement('div');
+          section.className = 'section' + (i === 0 ? ' selected' : '');
 
-    function updateSelection() {
-      // تحديث الكلاسات للظهور البصري
-      sections.forEach((section, sIndex) => {
-        section.classList.toggle('selected', sIndex === currentSection);
-        const movies = section.querySelectorAll('.movie');
-        movies.forEach((movie, mIndex) => {
-          movie.classList.toggle('selected', sIndex === currentSection && mIndex === currentMovie);
+          const title = document.createElement('div');
+          title.className = 'section-title';
+          title.textContent = catName;
+
+          const carousel = document.createElement('div');
+          carousel.className = 'carousel';
+
+          categorized[catName].forEach((video, j) => {
+            const movie = document.createElement('div');
+            movie.className = 'movie' + (j === 0 && i === 0 ? ' selected' : '');
+            movie.style.backgroundImage = `url(${video.image})`;
+            movie.title = video.title || '';
+            movie.onclick = () => {
+              alert(`🎬 ${video.title}`);
+            };
+            carousel.appendChild(movie);
+          });
+
+          section.appendChild(title);
+          section.appendChild(carousel);
+          app.appendChild(section);
+          sections.push(section);
         });
+
+        initNavigation(sections, categoryNames);
       });
-
-      // تمرير أفقي برمجي للعنصر المحدد داخل الكاروسيل الحالي
-      const carousel = sections[currentSection].querySelector('.carousel');
-      const movies = carousel.querySelectorAll('.movie');
-      const movie = movies[currentMovie];
-      // حساب الموضع بحيث يكون العنصر في المنتصف عرضياً
-      const offsetLeft = movie.offsetLeft - (carousel.clientWidth - movie.clientWidth) / 2;
-      carousel.scrollTo({ left: offsetLeft, behavior: 'smooth' });
-
-      // تمرير عمودي برمجي لإظهار القسم الحالي في منتصف الشاشة
-      sections[currentSection].scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    document.addEventListener('keydown', (e) => {
-      // منع السلوك الافتراضي للتمرير بالأسهم على الصفحة
-      if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) {
-        e.preventDefault();
-      }
-      const currentCarousel = sections[currentSection].querySelector('.carousel');
-      const movies = currentCarousel.querySelectorAll('.movie');
+    function initNavigation(sections, categories) {
+      let currentSection = 0;
+      let currentMovie = 0;
 
-      if (e.key === 'ArrowLeft' && currentMovie < movies.length - 1) {
-        currentMovie++;
-        updateSelection();
-      } else if (e.key === 'ArrowRight' && currentMovie > 0) {
-        currentMovie--;
-        updateSelection();
-      } else if (e.key === 'ArrowDown' && currentSection < sections.length - 1) {
-        currentSection++;
-        currentMovie = 0;
-        updateSelection();
-      } else if (e.key === 'ArrowUp' && currentSection > 0) {
-        currentSection--;
-        currentMovie = 0;
-        updateSelection();
-      } else if (e.key === 'Enter') {
-        alert(`🎬 تم اختيار فيلم رقم ${currentMovie + 1} من قسم "${categories[currentSection]}"`);
-      }
-    });
+      function updateSelection() {
+        sections.forEach((section, sIndex) => {
+          section.classList.toggle('selected', sIndex === currentSection);
+          const movies = section.querySelectorAll('.movie');
+          movies.forEach((movie, mIndex) => {
+            movie.classList.toggle('selected', sIndex === currentSection && mIndex === currentMovie);
+          });
+        });
 
-    createSections();
-    // تمرير أول قسم عند التحميل إذا لزم
-    sections[currentSection]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const carousel = sections[currentSection].querySelector('.carousel');
+        const movies = carousel.querySelectorAll('.movie');
+        const movie = movies[currentMovie];
+        const offsetLeft = movie.offsetLeft - (carousel.clientWidth - movie.clientWidth) / 2;
+        carousel.scrollTo({ left: offsetLeft, behavior: 'smooth' });
+        sections[currentSection].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      document.addEventListener('keydown', (e) => {
+        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+          e.preventDefault();
+        }
+
+        const currentCarousel = sections[currentSection].querySelector('.carousel');
+        const movies = currentCarousel.querySelectorAll('.movie');
+
+        if (e.key === 'ArrowLeft' && currentMovie < movies.length - 1) {
+          currentMovie++;
+          updateSelection();
+        } else if (e.key === 'ArrowRight' && currentMovie > 0) {
+          currentMovie--;
+          updateSelection();
+        } else if (e.key === 'ArrowDown' && currentSection < sections.length - 1) {
+          currentSection++;
+          currentMovie = 0;
+          updateSelection();
+        } else if (e.key === 'ArrowUp' && currentSection > 0) {
+          currentSection--;
+          currentMovie = 0;
+          updateSelection();
+        } else if (e.key === 'Enter') {
+          const movie = movies[currentMovie];
+          alert(`🎬 تم اختيار: ${movie.title}`);
+        }
+      });
+
+      updateSelection();
+    }
+
+    window.addEventListener("load", loadVideos);
   </script>
 </body>
 </html>
