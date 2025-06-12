@@ -1,172 +1,128 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>واجهة أفلام للريموت</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TV Video Player</title>
+  <link href="https://unpkg.com/phosphor-icons@1.4.2/src/css/phosphor.css" rel="stylesheet">
   <style>
-    :root {
-      --highlight-color: red;
-    }
     * {
       box-sizing: border-box;
-      /* تعطيل اختيار النص لتجنب سلوك غير مرغوب */
-      user-select: none;
     }
+
     body {
       margin: 0;
-      background: #111;
-      color: #fff;
-      font-family: sans-serif;
-      overflow-y: auto;    /* السماح بالتمرير العمودي برمجياً عند التنقل بين الأقسام */
-      overflow-x: hidden;  /* منع التمرير الأفقي العام */
-      direction: rtl;
-    }
-    header {
-      position: fixed; /* تثبيت الشعار في الأعلى */
-      top: 10px;
-      right: 20px;
-      z-index: 10;
-    }
-    header img {
-      height: 50px;
-    }
-    #app {
-      padding-top: 70px; /* لتفادي تراكب المحتوى مع الهيدر */
-    }
-    .section {
-      margin: 40px 0;
-    }
-    .section-title {
-      margin: 10px 3vw;
-      font-size: 2vw;
-      color: #f0f0f0;
-      text-align: right;
-    }
-    .carousel {
+      background-color: black;
       display: flex;
-      flex-direction: row;
-      overflow-x: hidden; /* منع التمرير اليدوي أو لمسي، لكن سنستخدم scrollLeft برمجياً */
-      scroll-behavior: smooth;
-      padding: 0 3vw;
-      /* تعطيل تفاعلات اللمس أو الفأرة */
-      touch-action: none;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
     }
-    .movie {
-      flex: 0 0 auto;
-      width: 12vw;
-      height: 18vw;
+
+    .player-container {
+      position: relative;
+      width: 100%;
+      max-width: 100vw;
+      max-height: 100vh;
+      overflow: hidden;
+    }
+
+    video {
+      width: 100%;
+      height: auto;
+      outline: none;
+    }
+
+    .controls {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      gap: 15px;
+    }
+
+    .controls i {
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .progress-bar {
+      flex-grow: 1;
+      height: 6px;
       background: #444;
-      margin-left: 1vw;
-      border: 3px solid transparent;
-      transition: border 0.2s;
-      border-radius: 6px;
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
     }
-    .movie.selected {
-      border: 3px solid var(--highlight-color);
-    }
-    .section.selected .section-title {
-      color: var(--highlight-color);
-    }
-    @media (max-width: 768px) {
-      .movie {
-        width: 30vw;
-        height: 45vw;
-      }
-      .section-title {
-        font-size: 18px;
-      }
+
+    .progress {
+      height: 100%;
+      width: 0%;
+      background: #00adef;
+      transition: width 0.1s linear;
     }
   </style>
 </head>
 <body>
-  <header>
-    <img src="https://raw.githubusercontent.com/qmsweb/Tools/main/images/one.png" alt="Logo">
-  </header>
-  <div id="app"></div>
+  <div class="player-container">
+    <video id="video" tabindex="0">
+      <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" type="video/mp4" />
+      Your browser does not support the video tag.
+    </video>
+
+    <div class="controls">
+      <i id="playPause" class="ph ph-play"></i>
+      <div class="progress-bar">
+        <div id="progress" class="progress"></div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const categories = ['مسلسلات جديدة', 'أفلام دراما', 'أفلام كوميديا', 'أفلام رعب'];
-    const app = document.getElementById('app');
-    let sections = [];
-    let currentSection = 0;
-    let currentMovie = 0;
+    const video = document.getElementById("video");
+    const playPauseIcon = document.getElementById("playPause");
+    const progressBar = document.getElementById("progress");
 
-    function createSections() {
-      categories.forEach((category, i) => {
-        const section = document.createElement('div');
-        section.className = 'section' + (i === 0 ? ' selected' : '');
-
-        const title = document.createElement('div');
-        title.className = 'section-title';
-        title.textContent = category;
-
-        const carousel = document.createElement('div');
-        carousel.className = 'carousel';
-
-        for (let j = 0; j < 15; j++) {
-          const movie = document.createElement('div');
-          movie.className = 'movie' + (j === 0 && i === 0 ? ' selected' : '');
-          carousel.appendChild(movie);
-        }
-
-        section.appendChild(title);
-        section.appendChild(carousel);
-        app.appendChild(section);
-        sections.push(section);
-      });
-    }
-
-    function updateSelection() {
-      // تحديث الكلاسات للظهور البصري
-      sections.forEach((section, sIndex) => {
-        section.classList.toggle('selected', sIndex === currentSection);
-        const movies = section.querySelectorAll('.movie');
-        movies.forEach((movie, mIndex) => {
-          movie.classList.toggle('selected', sIndex === currentSection && mIndex === currentMovie);
-        });
-      });
-
-      // تمرير أفقي برمجي للعنصر المحدد داخل الكاروسيل الحالي
-      const carousel = sections[currentSection].querySelector('.carousel');
-      const movies = carousel.querySelectorAll('.movie');
-      const movie = movies[currentMovie];
-      // حساب الموضع بحيث يكون العنصر في المنتصف عرضياً
-      const offsetLeft = movie.offsetLeft - (carousel.clientWidth - movie.clientWidth) / 2;
-      carousel.scrollTo({ left: offsetLeft, behavior: 'smooth' });
-
-      // تمرير عمودي برمجي لإظهار القسم الحالي في منتصف الشاشة
-      sections[currentSection].scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-
-    document.addEventListener('keydown', (e) => {
-      // منع السلوك الافتراضي للتمرير بالأسهم على الصفحة
-      if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) {
-        e.preventDefault();
+    function togglePlayPause() {
+      if (video.paused) {
+        video.play();
+        playPauseIcon.className = "ph ph-pause";
+      } else {
+        video.pause();
+        playPauseIcon.className = "ph ph-play";
       }
-      const currentCarousel = sections[currentSection].querySelector('.carousel');
-      const movies = currentCarousel.querySelectorAll('.movie');
+    }
 
-      if (e.key === 'ArrowLeft' && currentMovie < movies.length - 1) {
-        currentMovie++;
-        updateSelection();
-      } else if (e.key === 'ArrowRight' && currentMovie > 0) {
-        currentMovie--;
-        updateSelection();
-      } else if (e.key === 'ArrowDown' && currentSection < sections.length - 1) {
-        currentSection++;
-        currentMovie = 0;
-        updateSelection();
-      } else if (e.key === 'ArrowUp' && currentSection > 0) {
-        currentSection--;
-        currentMovie = 0;
-        updateSelection();
-      } else if (e.key === 'Enter') {
-        alert(`🎬 تم اختيار فيلم رقم ${currentMovie + 1} من قسم "${categories[currentSection]}"`);
+    function updateProgress() {
+      const percent = (video.currentTime / video.duration) * 100;
+      progressBar.style.width = percent + "%";
+    }
+
+    document.addEventListener("keydown", (e) => {
+      switch (e.key) {
+        case "ArrowRight":
+          video.currentTime += 10;
+          break;
+        case "ArrowLeft":
+          video.currentTime -= 10;
+          break;
+        case "Enter":
+        case "OK":
+        case " ":
+          togglePlayPause();
+          break;
       }
     });
 
-    createSections();
-    // تمرير أول قسم عند التحميل إذا لزم
-    sections[currentSection]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    playPauseIcon.onclick = togglePlayPause;
+    video.ontimeupdate = updateProgress;
+
+    window.onload = () => video.focus();
   </script>
 </body>
 </html>
