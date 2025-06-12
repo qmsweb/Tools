@@ -1,145 +1,172 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TV Video Player</title>
-  <link href="https://unpkg.com/phosphor-icons@1.4.2/src/css/phosphor.css" rel="stylesheet">
+  <title>واجهة أفلام للريموت</title>
   <style>
+    :root {
+      --highlight-color: red;
+    }
     * {
       box-sizing: border-box;
+      /* تعطيل اختيار النص لتجنب سلوك غير مرغوب */
+      user-select: none;
     }
-
     body {
       margin: 0;
-      background-color: black;
-      overflow: hidden;
+      background: #111;
+      color: #fff;
+      font-family: sans-serif;
+      overflow-y: auto;    /* السماح بالتمرير العمودي برمجياً عند التنقل بين الأقسام */
+      overflow-x: hidden;  /* منع التمرير الأفقي العام */
+      direction: rtl;
     }
-
-    .player-container {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
+    header {
+      position: fixed; /* تثبيت الشعار في الأعلى */
+      top: 10px;
+      right: 20px;
+      z-index: 10;
     }
-
-    video {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      background: black;
+    header img {
+      height: 50px;
     }
-
-    .controls {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: rgba(0, 0, 0, 0.6);
+    #app {
+      padding-top: 70px; /* لتفادي تراكب المحتوى مع الهيدر */
+    }
+    .section {
+      margin: 40px 0;
+    }
+    .section-title {
+      margin: 10px 3vw;
+      font-size: 2vw;
+      color: #f0f0f0;
+      text-align: right;
+    }
+    .carousel {
       display: flex;
-      align-items: center;
-      padding: 10px;
-      gap: 15px;
-      transition: opacity 0.3s ease;
+      flex-direction: row;
+      overflow-x: hidden; /* منع التمرير اليدوي أو لمسي، لكن سنستخدم scrollLeft برمجياً */
+      scroll-behavior: smooth;
+      padding: 0 3vw;
+      /* تعطيل تفاعلات اللمس أو الفأرة */
+      touch-action: none;
     }
-
-    .controls.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .controls i {
-      color: white;
-      font-size: 24px;
-      cursor: pointer;
-    }
-
-    .progress-bar {
-      flex-grow: 1;
-      height: 6px;
+    .movie {
+      flex: 0 0 auto;
+      width: 12vw;
+      height: 18vw;
       background: #444;
-      border-radius: 3px;
-      overflow: hidden;
-      position: relative;
+      margin-left: 1vw;
+      border: 3px solid transparent;
+      transition: border 0.2s;
+      border-radius: 6px;
     }
-
-    .progress {
-      height: 100%;
-      width: 0%;
-      background: #00adef;
-      transition: width 0.1s linear;
+    .movie.selected {
+      border: 3px solid var(--highlight-color);
+    }
+    .section.selected .section-title {
+      color: var(--highlight-color);
+    }
+    @media (max-width: 768px) {
+      .movie {
+        width: 30vw;
+        height: 45vw;
+      }
+      .section-title {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="player-container">
-    <video id="video" autoplay muted playsinline>
-      <source src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" type="video/mp4" />
-      Your browser does not support the video tag.
-    </video>
-
-    <div id="controls" class="controls hidden">
-      <i id="playPause" class="ph ph-pause"></i>
-      <div class="progress-bar">
-        <div id="progress" class="progress"></div>
-      </div>
-    </div>
-  </div>
-
+  <header>
+    <img src="https://raw.githubusercontent.com/qmsweb/Tools/main/images/one.png" alt="Logo">
+  </header>
+  <div id="app"></div>
   <script>
-    const video = document.getElementById("video");
-    const controls = document.getElementById("controls");
-    const playPauseIcon = document.getElementById("playPause");
-    const progressBar = document.getElementById("progress");
+    const categories = ['مسلسلات جديدة', 'أفلام دراما', 'أفلام كوميديا', 'أفلام رعب'];
+    const app = document.getElementById('app');
+    let sections = [];
+    let currentSection = 0;
+    let currentMovie = 0;
 
-    // تشغيل تلقائي (مع كتم الصوت لأن بعض الأجهزة تحظر التشغيل التلقائي دون كتم)
-    window.onload = () => {
-      video.play();
-      video.focus();
-    };
+    function createSections() {
+      categories.forEach((category, i) => {
+        const section = document.createElement('div');
+        section.className = 'section' + (i === 0 ? ' selected' : '');
 
-    // تحديث شريط التقدم
-    video.ontimeupdate = () => {
-      const percent = (video.currentTime / video.duration) * 100;
-      progressBar.style.width = percent + "%";
-    };
+        const title = document.createElement('div');
+        title.className = 'section-title';
+        title.textContent = category;
 
-    // تبديل تشغيل/إيقاف
-    function togglePlayPause() {
-      if (video.paused) {
-        video.play();
-        playPauseIcon.className = "ph ph-pause";
-      } else {
-        video.pause();
-        playPauseIcon.className = "ph ph-play";
+        const carousel = document.createElement('div');
+        carousel.className = 'carousel';
+
+        for (let j = 0; j < 15; j++) {
+          const movie = document.createElement('div');
+          movie.className = 'movie' + (j === 0 && i === 0 ? ' selected' : '');
+          carousel.appendChild(movie);
+        }
+
+        section.appendChild(title);
+        section.appendChild(carousel);
+        app.appendChild(section);
+        sections.push(section);
+      });
+    }
+
+    function updateSelection() {
+      // تحديث الكلاسات للظهور البصري
+      sections.forEach((section, sIndex) => {
+        section.classList.toggle('selected', sIndex === currentSection);
+        const movies = section.querySelectorAll('.movie');
+        movies.forEach((movie, mIndex) => {
+          movie.classList.toggle('selected', sIndex === currentSection && mIndex === currentMovie);
+        });
+      });
+
+      // تمرير أفقي برمجي للعنصر المحدد داخل الكاروسيل الحالي
+      const carousel = sections[currentSection].querySelector('.carousel');
+      const movies = carousel.querySelectorAll('.movie');
+      const movie = movies[currentMovie];
+      // حساب الموضع بحيث يكون العنصر في المنتصف عرضياً
+      const offsetLeft = movie.offsetLeft - (carousel.clientWidth - movie.clientWidth) / 2;
+      carousel.scrollTo({ left: offsetLeft, behavior: 'smooth' });
+
+      // تمرير عمودي برمجي لإظهار القسم الحالي في منتصف الشاشة
+      sections[currentSection].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      // منع السلوك الافتراضي للتمرير بالأسهم على الصفحة
+      if (['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) {
+        e.preventDefault();
       }
-    }
+      const currentCarousel = sections[currentSection].querySelector('.carousel');
+      const movies = currentCarousel.querySelectorAll('.movie');
 
-    // إظهار / إخفاء الشريط
-    function toggleControls() {
-      controls.classList.toggle("hidden");
-    }
-
-    // التحكم بزر Enter والسهام
-    document.addEventListener("keydown", (e) => {
-      switch (e.key) {
-        case "Enter":
-        case "OK":
-          toggleControls();
-          break;
-        case "ArrowRight":
-          video.currentTime += 10;
-          break;
-        case "ArrowLeft":
-          video.currentTime -= 10;
-          break;
-        case " ":
-          togglePlayPause();
-          break;
+      if (e.key === 'ArrowLeft' && currentMovie < movies.length - 1) {
+        currentMovie++;
+        updateSelection();
+      } else if (e.key === 'ArrowRight' && currentMovie > 0) {
+        currentMovie--;
+        updateSelection();
+      } else if (e.key === 'ArrowDown' && currentSection < sections.length - 1) {
+        currentSection++;
+        currentMovie = 0;
+        updateSelection();
+      } else if (e.key === 'ArrowUp' && currentSection > 0) {
+        currentSection--;
+        currentMovie = 0;
+        updateSelection();
+      } else if (e.key === 'Enter') {
+        alert(`🎬 تم اختيار فيلم رقم ${currentMovie + 1} من قسم "${categories[currentSection]}"`);
       }
     });
 
-    // دعم الضغط على الأيقونة بالماوس
-    playPauseIcon.onclick = togglePlayPause;
+    createSections();
+    // تمرير أول قسم عند التحميل إذا لزم
+    sections[currentSection]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   </script>
 </body>
 </html>
