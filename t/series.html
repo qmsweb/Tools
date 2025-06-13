@@ -99,6 +99,13 @@
       padding: 20px;
     }
 
+    .error {
+      color: #ff5555;
+      font-size: 1.5vw;
+      text-align: center;
+      padding: 20px;
+    }
+
     @media (max-width: 768px) {
       .poster {
         width: 40vw;
@@ -118,7 +125,7 @@
         font-size: 14px;
       }
       
-      .loading {
+      .loading, .error {
         font-size: 16px;
       }
     }
@@ -180,39 +187,60 @@
         if (snapshot.exists()) {
           seriesData = snapshot.val();
           updateSeriesUI();
+          
+          // Log series data for debugging
+          console.log("Series data loaded:", seriesData);
         } else {
           console.log("No series data available");
-          displayError();
+          displayError("لم يتم العثور على بيانات المسلسل");
         }
       }).catch((error) => {
         console.error("Error fetching series data:", error);
-        displayError();
+        displayError("خطأ في تحميل بيانات المسلسل");
       });
     }
 
     // Fetch episodes from Firebase
     function fetchEpisodes() {
-      const episodesRef = database.ref('JTV_episodes').orderByChild('cartoon_id').equalTo(seriesId);
+      const episodesRef = database.ref('JTV_episodes');
       
       episodesRef.once('value').then((snapshot) => {
         if (snapshot.exists()) {
           episodes = [];
+          
+          // Loop through all episodes
           snapshot.forEach((childSnapshot) => {
             const episode = childSnapshot.val();
-            episode.id = childSnapshot.key;
-            episodes.push(episode);
+            
+            // Check if this episode belongs to the current series
+            if (episode.cartoon_id && episode.cartoon_id.toString() === seriesId.toString()) {
+              episode.id = childSnapshot.key;
+              episodes.push(episode);
+            }
           });
           
-          // Sort episodes by order (assuming an 'order' field exists)
-          episodes.sort((a, b) => (a.order || 0) - (b.order || 0));
-          renderEpisodes();
+          if (episodes.length > 0) {
+            // Sort episodes by order if available, otherwise by key
+            episodes.sort((a, b) => {
+              if (a.order && b.order) return a.order - b.order;
+              if (a.id && b.id) return a.id.localeCompare(b.id);
+              return 0;
+            });
+            
+            // Log episodes for debugging
+            console.log("Episodes loaded:", episodes);
+            renderEpisodes();
+          } else {
+            console.log("No episodes available for this series");
+            episodeList.innerHTML = '<div class="error">لا توجد حلقات متاحة لهذا المسلسل</div>';
+          }
         } else {
-          console.log("No episodes available");
-          episodeList.innerHTML = '<div class="loading">لا توجد حلقات متاحة لهذا المسلسل</div>';
+          console.log("No episodes available in database");
+          episodeList.innerHTML = '<div class="error">لا توجد حلقات متاحة في قاعدة البيانات</div>';
         }
       }).catch((error) => {
         console.error("Error fetching episodes:", error);
-        episodeList.innerHTML = '<div class="loading">حدث خطأ أثناء تحميل الحلقات</div>';
+        episodeList.innerHTML = '<div class="error">حدث خطأ أثناء تحميل الحلقات</div>';
       });
     }
 
@@ -228,7 +256,7 @@
       // Update title - using 'title' as the key
       if (seriesData.title) {
         seriesTitle.textContent = seriesData.title;
-      } else if (seriesData.name) { // Fallback to name if title doesn't exist
+      } else if (seriesData.name) {
         seriesTitle.textContent = seriesData.name;
       } else {
         seriesTitle.textContent = 'اسم المسلسل';
@@ -245,7 +273,7 @@
     // Render episodes list
     function renderEpisodes() {
       if (episodes.length === 0) {
-        episodeList.innerHTML = '<div class="loading">لا توجد حلقات متاحة</div>';
+        episodeList.innerHTML = '<div class="error">لا توجد حلقات متاحة</div>';
         return;
       }
       
@@ -255,6 +283,7 @@
         const epElement = document.createElement('div');
         epElement.className = 'episode' + (index === currentEpisode ? ' selected' : '');
         epElement.textContent = `حلقة ${index + 1}`;
+        epElement.title = episode.name || `الحلقة ${index + 1}`;
         
         epElement.addEventListener('click', () => {
           selectEpisode(index);
@@ -280,13 +309,19 @@
       if (episodes.length === 0 || !episodes[currentEpisode]) return;
       
       const episode = episodes[currentEpisode];
-      alert(`🎬 تم اختيار حلقة ${currentEpisode + 1}: ${episode.name || ''}`);
+      
+      // Show episode details in alert
+      let episodeInfo = `🎬 الحلقة ${currentEpisode + 1}`;
+      if (episode.name) episodeInfo += `: ${episode.name}`;
+      if (episode.video_url) episodeInfo += `\n🔗 رابط التشغيل: ${episode.video_url}`;
+      
+      alert(episodeInfo);
     }
 
     // Display error message
-    function displayError() {
-      seriesTitle.textContent = 'حدث خطأ في التحميل';
-      seriesDescription.textContent = 'تعذر تحميل بيانات المسلسل. يرجى المحاولة مرة أخرى لاحقًا.';
+    function displayError(message) {
+      seriesTitle.textContent = 'حدث خطأ';
+      seriesDescription.textContent = message || 'تعذر تحميل بيانات المسلسل. يرجى المحاولة مرة أخرى لاحقًا.';
     }
 
     // Keyboard navigation
