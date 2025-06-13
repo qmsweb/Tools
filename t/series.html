@@ -166,7 +166,14 @@
 
     // Get series ID from URL parameter
     const urlParams = new URLSearchParams(window.location.search);
-    const seriesId = urlParams.get('id') || 'defaultSeriesId';
+    const rawId = urlParams.get('id') || 'defaultSeriesId';
+    let seriesId = rawId;
+    // حاول تحويل إلى عدد إذا كان مناسبًا
+    const parsed = parseInt(rawId, 10);
+    if (!isNaN(parsed) && String(parsed) === rawId) {
+      seriesId = parsed;
+    }
+    console.log("Series ID from URL:", seriesId, "type:", typeof seriesId);
 
     // DOM Elements
     const seriesPoster = document.getElementById('seriesPoster');
@@ -187,11 +194,9 @@
         if (snapshot.exists()) {
           seriesData = snapshot.val();
           updateSeriesUI();
-          
-          // Log series data for debugging
           console.log("Series data loaded:", seriesData);
         } else {
-          console.log("No series data available");
+          console.log("No series data available for ID:", seriesId);
           displayError("لم يتم العثور على بيانات المسلسل");
         }
       }).catch((error) => {
@@ -200,43 +205,38 @@
       });
     }
 
-    // Fetch episodes from Firebase
+    // Fetch episodes from Firebase باستخدام استعلام مباشر
     function fetchEpisodes() {
-      const episodesRef = database.ref('JTV_episodes/' + seriesId);
-      
+      // أزل الرسالة المؤقتة
+      episodeList.innerHTML = '';
+      // استعلام على cartoon_id مطابق لـ seriesId
+      const episodesRef = database
+        .ref('JTV_episodes')
+        .orderByChild('cartoon_id')
+        .equalTo(seriesId);
+
       episodesRef.once('value').then((snapshot) => {
         if (snapshot.exists()) {
           episodes = [];
-          
-          // Loop through all episodes
           snapshot.forEach((childSnapshot) => {
             const episode = childSnapshot.val();
-            
-            // Check if this episode belongs to the current series
-            if (episode.cartoon_id && episode.cartoon_id.toString() === seriesId.toString()) {
-              episode.id = childSnapshot.key;
-              episodes.push(episode);
-            }
+            // للمزيد من التتبع، اطبع cartoon_id لكل حلقة
+            console.log("Episode key:", childSnapshot.key, "cartoon_id:", episode.cartoon_id, "type:", typeof episode.cartoon_id);
+            episode.id = childSnapshot.key;
+            episodes.push(episode);
           });
-          
-          if (episodes.length > 0) {
-            // Sort episodes by order if available, otherwise by key
-            episodes.sort((a, b) => {
-              if (a.order && b.order) return a.order - b.order;
-              if (a.id && b.id) return a.id.localeCompare(b.id);
-              return 0;
-            });
-            
-            // Log episodes for debugging
-            console.log("Episodes loaded:", episodes);
-            renderEpisodes();
-          } else {
-            console.log("No episodes available for this series");
-            episodeList.innerHTML = '<div class="error">لا توجد حلقات متاحة لهذا المسلسل</div>';
-          }
+
+          // ترتيب الحلقات حسب الحقل order إن وجد، وإلا حسب المفتاح
+          episodes.sort((a, b) => {
+            if (a.order != null && b.order != null) return a.order - b.order;
+            return String(a.id).localeCompare(String(b.id));
+          });
+
+          console.log("Episodes loaded via query:", episodes);
+          renderEpisodes();
         } else {
-          console.log("No episodes available in database");
-          episodeList.innerHTML = '<div class="error">لا توجد حلقات متاحة في قاعدة البيانات</div>';
+          console.log("لا توجد حلقات متاحة لهذا المسلسل (ID:", seriesId, ")");
+          episodeList.innerHTML = '<div class="error">لا توجد حلقات متاحة لهذا المسلسل</div>';
         }
       }).catch((error) => {
         console.error("Error fetching episodes:", error);
@@ -253,7 +253,7 @@
         seriesPoster.style.backgroundImage = `url('https://via.placeholder.com/300x450?text=صورة+المسلسل')`;
       }
       
-      // Update title - using 'title' as the key
+      // Update title
       if (seriesData.title) {
         seriesTitle.textContent = seriesData.title;
       } else if (seriesData.name) {
@@ -296,8 +296,6 @@
     // Select an episode
     function selectEpisode(index) {
       currentEpisode = index;
-      
-      // Update UI
       const allEpisodes = document.querySelectorAll('.episode');
       allEpisodes.forEach((ep, i) => {
         ep.classList.toggle('selected', i === index);
