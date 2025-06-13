@@ -10,11 +10,7 @@
     :root {
       --highlight-color: red;
     }
-
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       background: #111;
@@ -23,18 +19,13 @@
       overflow: hidden;
       direction: rtl;
     }
-
     header {
       position: absolute;
       top: 10px;
       right: 20px;
       z-index: 10;
     }
-
-    header img {
-      height: 50px;
-    }
-
+    header img { height: 50px; }
     .container {
       margin-top: 80px;
       padding: 0 3vw;
@@ -43,7 +34,6 @@
       align-items: flex-start;
       gap: 3vw;
     }
-
     .poster {
       width: 20vw;
       height: 30vw;
@@ -52,11 +42,7 @@
       background-size: cover;
       background-position: center;
     }
-
-    .info {
-      flex: 1;
-    }
-
+    .info { flex: 1; }
     .title {
       font-size: 2.5vw;
       margin-bottom: 15px;
@@ -67,13 +53,11 @@
       margin-bottom: 15px;
       color: #c8c8c8;
     }
-
     .episode-list {
       display: flex;
       flex-wrap: wrap;
       gap: 1vw;
     }
-
     .episode {
       width: 8vw;
       height: 4vw;
@@ -86,48 +70,35 @@
       transition: border 0.2s;
       cursor: pointer;
     }
-
     .episode.selected {
       border-color: var(--highlight-color);
       font-weight: bold;
     }
-
     .loading {
       color: #aaa;
       font-size: 1.5vw;
       text-align: center;
       padding: 20px;
     }
-
     .error {
       color: #ff5555;
       font-size: 1.5vw;
       text-align: center;
       padding: 20px;
     }
-
     @media (max-width: 768px) {
       .poster {
         width: 40vw;
         height: 60vw;
       }
-
-      .title {
-        font-size: 28px;
-      }
-      .description {
-        font-size: 20px;
-      }
-
+      .title { font-size: 28px; }
+      .description { font-size: 20px; }
       .episode {
         width: 18vw;
         height: 8vw;
         font-size: 14px;
       }
-      
-      .loading, .error {
-        font-size: 16px;
-      }
+      .loading, .error { font-size: 16px; }
     }
   </style>
 </head>
@@ -159,101 +130,90 @@
       messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
       appId: "1:866549697398:android:024dd3bf3b81d1adf78857"
     };
-
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    // Get series ID from URL parameter
+    // احصل على seriesId من URL
     const urlParams = new URLSearchParams(window.location.search);
     const rawId = urlParams.get('id') || 'defaultSeriesId';
     let seriesId = rawId;
-    // حاول تحويل إلى عدد إذا كان مناسبًا
     const parsed = parseInt(rawId, 10);
     if (!isNaN(parsed) && String(parsed) === rawId) {
       seriesId = parsed;
     }
     console.log("Series ID from URL:", seriesId, "type:", typeof seriesId);
 
-    // DOM Elements
+    // عناصر DOM
     const seriesPoster = document.getElementById('seriesPoster');
     const seriesTitle = document.getElementById('seriesTitle');
     const seriesDescription = document.getElementById('seriesDescription');
     const episodeList = document.getElementById('episodeList');
 
-    // State variables
+    // الحالة
     let currentEpisode = 0;
     let episodes = [];
     let seriesData = {};
 
-    // Fetch series data from Firebase
+    // جلب بيانات المسلسل
     function fetchSeriesData() {
       const seriesRef = database.ref('JTV_Cartoon/' + seriesId);
-      
-      seriesRef.once('value').then((snapshot) => {
-        if (snapshot.exists()) {
-          seriesData = snapshot.val();
-          updateSeriesUI();
-          console.log("Series data loaded:", seriesData);
-        } else {
-          console.log("No series data available for ID:", seriesId);
-          displayError("لم يتم العثور على بيانات المسلسل");
-        }
-      }).catch((error) => {
-        console.error("Error fetching series data:", error);
-        displayError("خطأ في تحميل بيانات المسلسل");
-      });
+      seriesRef.once('value')
+        .then((snapshot) => {
+          if (snapshot.exists()) {
+            seriesData = snapshot.val();
+            updateSeriesUI();
+            console.log("Series data loaded:", seriesData);
+          } else {
+            console.log("No series data for ID:", seriesId);
+            displayError("لم يتم العثور على بيانات المسلسل");
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching series data:", error);
+          displayError("خطأ في تحميل بيانات المسلسل");
+        });
     }
 
-    // Fetch episodes from Firebase باستخدام استعلام مباشر
+    // جلب الحلقات حسب الهيكل الجديد: JTV_episodes/{seriesId}/ep/{episodeId}
     function fetchEpisodes() {
-      // أزل الرسالة المؤقتة
-      episodeList.innerHTML = '';
-      // استعلام على cartoon_id مطابق لـ seriesId
-      const episodesRef = database
-        .ref('JTV_episodes')
-        .orderByChild('cartoon_id')
-        .equalTo(seriesId);
-
-      episodesRef.once('value').then((snapshot) => {
-        if (snapshot.exists()) {
-          episodes = [];
-          snapshot.forEach((childSnapshot) => {
-            const episode = childSnapshot.val();
-            // للمزيد من التتبع، اطبع cartoon_id لكل حلقة
-            console.log("Episode key:", childSnapshot.key, "cartoon_id:", episode.cartoon_id, "type:", typeof episode.cartoon_id);
-            episode.id = childSnapshot.key;
-            episodes.push(episode);
-          });
-
-          // ترتيب الحلقات حسب الحقل order إن وجد، وإلا حسب المفتاح
-          episodes.sort((a, b) => {
-            if (a.order != null && b.order != null) return a.order - b.order;
-            return String(a.id).localeCompare(String(b.id));
-          });
-
-          console.log("Episodes loaded via query:", episodes);
-          renderEpisodes();
-        } else {
-          console.log("لا توجد حلقات متاحة لهذا المسلسل (ID:", seriesId, ")");
-          episodeList.innerHTML = '<div class="error">لا توجد حلقات متاحة لهذا المسلسل</div>';
-        }
-      }).catch((error) => {
-        console.error("Error fetching episodes:", error);
-        episodeList.innerHTML = '<div class="error">حدث خطأ أثناء تحميل الحلقات</div>';
-      });
+      episodeList.innerHTML = ''; // إزالة رسالة التحميل القديمة
+      const episodesRef = database.ref(`JTV_episodes/${seriesId}`);
+      episodesRef.once('value')
+        .then((snapshot) => {
+          if (snapshot.exists()) {
+            episodes = [];
+            snapshot.forEach((childSnapshot) => {
+              const ep = childSnapshot.val();
+              ep.id = childSnapshot.key;
+              console.log("Loaded ep key:", ep.id, ep);
+              episodes.push(ep);
+            });
+            // ترتيب حسب الحقل order إن وجد
+            episodes.sort((a, b) => {
+              if (a.order != null && b.order != null) return a.order - b.order;
+              return String(a.id).localeCompare(String(b.id));
+            });
+            console.log("Episodes after sort:", episodes);
+            renderEpisodes();
+          } else {
+            console.log("لا توجد حلقات لمسلسل ID:", seriesId);
+            episodeList.innerHTML = '<div class="error">لا توجد حلقات متاحة لهذا المسلسل</div>';
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching episodes:", error);
+          episodeList.innerHTML = '<div class="error">حدث خطأ أثناء تحميل الحلقات</div>';
+        });
     }
 
-    // Update series UI with fetched data
+    // تحديث واجهة المسلسل
     function updateSeriesUI() {
-      // Update poster
       if (seriesData.cover_URL) {
         seriesPoster.style.backgroundImage = `url('${seriesData.cover_URL}')`;
       } else {
         seriesPoster.style.backgroundImage = `url('https://via.placeholder.com/300x450?text=صورة+المسلسل')`;
       }
-      
-      // Update title
       if (seriesData.title) {
         seriesTitle.textContent = seriesData.title;
       } else if (seriesData.name) {
@@ -261,8 +221,6 @@
       } else {
         seriesTitle.textContent = 'اسم المسلسل';
       }
-      
-      // Update description
       if (seriesData.description) {
         seriesDescription.textContent = seriesData.description;
       } else {
@@ -270,30 +228,25 @@
       }
     }
 
-    // Render episodes list
+    // عرض قائمة الحلقات
     function renderEpisodes() {
       if (episodes.length === 0) {
         episodeList.innerHTML = '<div class="error">لا توجد حلقات متاحة</div>';
         return;
       }
-      
       episodeList.innerHTML = '';
-      
       episodes.forEach((episode, index) => {
         const epElement = document.createElement('div');
         epElement.className = 'episode' + (index === currentEpisode ? ' selected' : '');
         epElement.textContent = `حلقة ${index + 1}`;
         epElement.title = episode.name || `الحلقة ${index + 1}`;
-        
         epElement.addEventListener('click', () => {
           selectEpisode(index);
         });
-        
         episodeList.appendChild(epElement);
       });
     }
 
-    // Select an episode
     function selectEpisode(index) {
       currentEpisode = index;
       const allEpisodes = document.querySelectorAll('.episode');
@@ -302,27 +255,20 @@
       });
     }
 
-    // Play selected episode
     function playEpisode() {
       if (episodes.length === 0 || !episodes[currentEpisode]) return;
-      
       const episode = episodes[currentEpisode];
-      
-      // Show episode details in alert
       let episodeInfo = `🎬 الحلقة ${currentEpisode + 1}`;
       if (episode.name) episodeInfo += `: ${episode.name}`;
       if (episode.video_url) episodeInfo += `\n🔗 رابط التشغيل: ${episode.video_url}`;
-      
       alert(episodeInfo);
     }
 
-    // Display error message
     function displayError(message) {
       seriesTitle.textContent = 'حدث خطأ';
-      seriesDescription.textContent = message || 'تعذر تحميل بيانات المسلسل. يرجى المحاولة مرة أخرى لاحقًا.';
+      seriesDescription.textContent = message || 'تعذر تحميل بيانات المسلسل. يرجى المحاولة لاحقًا.';
     }
 
-    // Keyboard navigation
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowLeft' && currentEpisode < episodes.length - 1) {
         selectEpisode(currentEpisode + 1);
@@ -333,7 +279,7 @@
       }
     });
 
-    // Initialize
+    // بدء التحميل
     fetchSeriesData();
     fetchEpisodes();
   </script>
