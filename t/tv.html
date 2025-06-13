@@ -137,9 +137,10 @@
             movie.className = 'movie' + (j === 0 && i === 0 ? ' selected' : '');
             movie.style.backgroundImage = `url(${video.cover_URL})`;
             movie.title = video.title || '';
-            movie.onclick = () => {
-              alert(`🎬 ${video.title}`);
-            };
+           movie.onclick = () => {
+  window.location.href = `series.html?id=${video.id}`;
+};
+
             carousel.appendChild(movie);
           });
 
