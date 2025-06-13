@@ -106,7 +106,7 @@
       let currentSection = 0;
       let currentMovie = 0;
 
-      const videosRef = db.ref("mtnbi_video").orderByKey();
+      const videosRef = db.ref("JTV_Cartoon").orderByKey();
 
       videosRef.once("value", (snapshot) => {
         const videos = snapshot.val();
@@ -135,7 +135,7 @@
           categorized[catName].forEach((video, j) => {
             const movie = document.createElement('div');
             movie.className = 'movie' + (j === 0 && i === 0 ? ' selected' : '');
-            movie.style.backgroundImage = `url(${video.image})`;
+            movie.style.backgroundImage = `url(${video.cover_URL})`;
             movie.title = video.title || '';
             movie.onclick = () => {
               alert(`🎬 ${video.title}`);
