@@ -202,7 +202,7 @@
 
     // Fetch episodes from Firebase
     function fetchEpisodes() {
-      const episodesRef = database.ref('JTV_episodes');
+      const episodesRef = database.ref('JTV_episodes/' + seriesId);
       
       episodesRef.once('value').then((snapshot) => {
         if (snapshot.exists()) {
