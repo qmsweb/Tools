@@ -106,6 +106,7 @@
       let currentSection = 0;
       let currentMovie = 0;
 
+      // دائماً نحدث البيانات من Firebase عند تشغيل البرنامج
       const videosRef = db.ref("JTV_Cartoon").orderByKey();
 
       videosRef.once("value", (snapshot) => {
@@ -120,6 +121,12 @@
           categorized[cat].push({ ...video, id });
         }
 
+        localStorage.setItem('cachedVideos', JSON.stringify(categorized));
+        buildUI(categorized);
+      });
+
+      function buildUI(categorized) {
+        app.innerHTML = ''; // تنظيف الصفحة أولاً
         const categoryNames = Object.keys(categorized);
         categoryNames.forEach((catName, i) => {
           const section = document.createElement('div');
@@ -137,7 +144,7 @@
             movie.className = 'movie' + (j === 0 && i === 0 ? ' selected' : '');
             movie.style.backgroundImage = `url(${video.cover_URL})`;
             movie.title = video.title || '';
-            movie.dataset.id = video.id; // حفظ المعرف
+            movie.dataset.id = video.id;
 
             movie.onclick = () => {
               window.location.href = `series.html?id=${video.id}`;
@@ -153,7 +160,7 @@
         });
 
         initNavigation(sections);
-      });
+      }
     }
 
     function initNavigation(sections) {
