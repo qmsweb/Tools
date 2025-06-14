@@ -191,6 +191,7 @@
             snapshot.forEach(childSnapshot => {
               const epData = childSnapshot.val();
               epData.id = childSnapshot.key;
+              epData.video_url = epData.video_url || ''; // تأكد من وجود المفتاح
               episodes.push(epData);
             });
             episodes.sort((a, b) => {
@@ -228,7 +229,12 @@
         epElement.textContent = episode.name || `حلقة ${index + 1}`;
         epElement.title = episode.name || `الحلقة ${index + 1}`;
         epElement.setAttribute('tabindex', '0');
-        epElement.addEventListener('click', () => selectEpisode(index));
+        // عند النقر: تحديد الحلقة ثم إرسال الرابط فورًا
+        epElement.addEventListener('click', () => {
+          selectEpisode(index);
+          playEpisode();
+        });
+        // عند الضغط Enter: سيتم التقاطه في مستمع keydown العام
         episodeList.appendChild(epElement);
       });
 
@@ -246,8 +252,6 @@
       document.querySelectorAll('.episode').forEach((ep, i) => {
         ep.classList.toggle('selected', i === index);
       });
-      
-      // تمرير الحلقة إلى منتصف الشاشة
       const selectedEp = document.querySelector('.episode.selected');
       if (selectedEp) {
         selectedEp.focus();
@@ -262,9 +266,13 @@
     function playEpisode() {
       const episode = episodes[currentEpisode];
       if (!episode) return;
-      let info = `🎬 ${episode.name || `الحلقة ${currentEpisode + 1}`}`;
-      if (episode.video_url) info += `\n🔗 رابط التشغيل: ${episode.video_url}`;
-      alert(info);
+      const link = episode.video_url || '';
+      if (window.AndroidInterface && typeof window.AndroidInterface.openEpisode === 'function') {
+        window.AndroidInterface.openEpisode(link);
+      } else {
+        // تجربة على المتصفح العادي
+        alert(`🎬 ${episode.name || `الحلقة ${currentEpisode + 1}`}\n🔗 ${link || 'لا يوجد رابط'}`);
+      }
     }
 
     function displayError(message) {
@@ -276,22 +284,15 @@
     document.addEventListener('keydown', e => {
       const isRTL = document.dir === 'rtl';
       const episodeCount = episodes.length;
-      
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-        e.preventDefault(); // منع سلوك المتصفح الافتراضي
-        
+        e.preventDefault();
         let newIndex = currentEpisode;
-        
-        // تحديد اتجاه الحركة بناءً على اللغة
         if ((e.key === 'ArrowLeft' && !isRTL) || 
             (e.key === 'ArrowRight' && isRTL)) {
-          // التحرك إلى اليمين (الحلقة التالية)
           newIndex = (currentEpisode + 1) % episodeCount;
         } else {
-          // التحرك إلى اليسار (الحلقة السابقة)
           newIndex = (currentEpisode - 1 + episodeCount) % episodeCount;
         }
-        
         selectEpisode(newIndex);
       } 
       else if (e.key === 'Enter') {
@@ -300,6 +301,7 @@
       }
     });
 
+    // استدعاء البيانات
     fetchSeriesData();
     fetchEpisodes();
   </script>
