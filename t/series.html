@@ -191,7 +191,7 @@
             snapshot.forEach(childSnapshot => {
               const epData = childSnapshot.val();
               epData.id = childSnapshot.key;
-              epData.video_url = epData.video_url || ''; // تأكد من وجود المفتاح
+              epData.URL = epData.URL || ''; // استخدام المفتاح URL هنا
               episodes.push(epData);
             });
             episodes.sort((a, b) => {
@@ -234,7 +234,6 @@
           selectEpisode(index);
           playEpisode();
         });
-        // عند الضغط Enter: سيتم التقاطه في مستمع keydown العام
         episodeList.appendChild(epElement);
       });
 
@@ -266,11 +265,10 @@
     function playEpisode() {
       const episode = episodes[currentEpisode];
       if (!episode) return;
-      const link = episode.video_url || '';
+      const link = episode.URL || ''; // استخدام المفتاح URL هنا
       if (window.AndroidInterface && typeof window.AndroidInterface.openEpisode === 'function') {
         window.AndroidInterface.openEpisode(link);
       } else {
-        // تجربة على المتصفح العادي
         alert(`🎬 ${episode.name || `الحلقة ${currentEpisode + 1}`}\n🔗 ${link || 'لا يوجد رابط'}`);
       }
     }
