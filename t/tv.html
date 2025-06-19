@@ -416,9 +416,16 @@
       const app = document.getElementById('app');
       const loader = document.querySelector('.loader');
       
+      // Clear cache on explicit page reload
+      if (performance.navigation.type === 1) { // TYPE_RELOAD is 1
+          localStorage.removeItem('cachedVideos');
+          localStorage.removeItem('cacheTimestamp');
+          console.log('Cache cleared due to page refresh.');
+      }
+
       const cachedVideos = localStorage.getItem('cachedVideos');
       const cacheTimestamp = localStorage.getItem('cacheTimestamp');
-      const oneHour = 60 * 60 * 1000; 
+      const oneHour = 60 * 60 * 1000;      
       
       const savedState = localStorage.getItem('appState');
       if (savedState) {
@@ -465,9 +472,9 @@
           loader.style.display = 'none';
         });
       }
-
+      
       function buildUI(categorized) {
-        app.innerHTML = ''; 
+        app.innerHTML = '';
         
         const categoryNames = Object.keys(categorized);
         if (categoryNames.length > 0) {
@@ -481,7 +488,7 @@
         
         // إعادة تعيين العنصر المحدد بناءً على الحالة المحفوظة
         setTimeout(() => {
-            if (savedState) {
+            if (savedState && performance.navigation.type !== 1) { // Don't restore state on reload
                 const state = JSON.parse(savedState);
                 if (state.activeElementType === 'featured') {
                     const featuredMovies = document.querySelectorAll('.featured-movie');
@@ -498,10 +505,13 @@
                     }
                 }
             } else {
-                // إذا لم تكن هناك حالة محفوظة، حدد أول عنصر مميز
+                // إذا لم تكن هناك حالة محفوظة أو تم تحديث الصفحة، حدد أول عنصر مميز
                 const featuredMovies = document.querySelectorAll('.featured-movie');
                 if (featuredMovies.length > 0) {
                     activeElement = featuredMovies[0];
+                    featuredMovieIndex = 0; // Reset featured index
+                    currentSectionIndex = 0; // Reset section index
+                    currentMovieIndex = 0; // Reset movie index
                 }
             }
             updateSelection();
