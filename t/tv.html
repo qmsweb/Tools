@@ -421,6 +421,19 @@
       const cacheTimestamp = localStorage.getItem('cacheTimestamp');
       const oneHour = 60 * 60 * 1000; // ساعة واحدة بالميلي ثانية
       
+      // استعادة حالة التحديد إذا كانت موجودة
+      const savedState = localStorage.getItem('appState');
+      if (savedState) {
+        try {
+          const state = JSON.parse(savedState);
+          currentSection = state.currentSection || 0;
+          currentMovie = state.currentMovie || 0;
+          featuredCurrentMovie = state.featuredCurrentMovie || 0;
+        } catch (e) {
+          console.error("Error parsing saved state:", e);
+        }
+      }
+      
       if (cachedVideos && cacheTimestamp && (Date.now() - parseInt(cacheTimestamp)) < oneHour) {
         // استخدام البيانات المخزنة مؤقتًا إذا كانت حديثة
         buildUI(JSON.parse(cachedVideos));
@@ -489,7 +502,7 @@
         
         videos.forEach((video, j) => {
           const movie = document.createElement('div');
-          movie.className = 'featured-movie' + (j === 0 ? ' selected' : '');
+          movie.className = 'featured-movie' + (j === featuredCurrentMovie ? ' selected' : '');
           
           const img = document.createElement('img');
           img.src = video.cover_URL || 'https://via.placeholder.com/400x225?text=No+Image';
@@ -514,6 +527,8 @@
           movie.dataset.id = video.id;
           
           movie.onclick = () => {
+            // حفظ حالة التحديد الحالية قبل الانتقال
+            saveAppState();
             window.location.href = `series.html?id=${video.id}`;
           };
           
@@ -527,7 +542,7 @@
       
       function createRegularSection(categoryName, videos, index) {
         const section = document.createElement('div');
-        section.className = 'section' + (index === 0 ? ' selected' : '');
+        section.className = 'section' + (index === currentSection ? ' selected' : '');
         
         const title = document.createElement('div');
         title.className = 'section-title';
@@ -538,7 +553,7 @@
         
         videos.forEach((video, j) => {
           const movie = document.createElement('div');
-          movie.className = 'movie' + (j === 0 && index === 0 ? ' selected' : '');
+          movie.className = 'movie' + (index === currentSection && j === currentMovie ? ' selected' : '');
           
           const img = document.createElement('img');
           img.src = video.cover_URL || 'https://via.placeholder.com/300x450?text=No+Image';
@@ -548,6 +563,8 @@
           movie.dataset.id = video.id;
           
           movie.onclick = () => {
+            // حفظ حالة التحديد الحالية قبل الانتقال
+            saveAppState();
             window.location.href = `series.html?id=${video.id}`;
           };
           
@@ -559,10 +576,17 @@
         app.appendChild(section);
       }
       
+      // حفظ حالة التطبيق في localStorage
+      function saveAppState() {
+        const state = {
+          currentSection,
+          currentMovie,
+          featuredCurrentMovie
+        };
+        localStorage.setItem('appState', JSON.stringify(state));
+      }
+      
       function initNavigation() {
-        let currentSection = 0;
-        let currentMovie = 0;
-        let featuredCurrentMovie = 0;
         const featuredMovies = document.querySelectorAll('.featured-movie');
         const sections = document.querySelectorAll('.section');
         
@@ -581,7 +605,7 @@
             });
           });
           
-          // التمرير إلى العنصر المحدد
+          // التمرير إلى العنصر المحدد في الكاروسيل (بدون تمرير الصفحة)
           if (sections.length > 0 && currentSection < sections.length) {
             const carousel = sections[currentSection].querySelector('.carousel');
             const movies = carousel.querySelectorAll('.movie');
@@ -590,10 +614,10 @@
               const offsetLeft = movie.offsetLeft - (carousel.clientWidth - movie.clientWidth) / 2;
               carousel.scrollTo({ left: offsetLeft, behavior: 'smooth' });
             }
-            
-            // التمرير إلى القسم في العرض
-            sections[currentSection].scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
+          
+          // تحديث حالة التطبيق عند تغيير التحديد
+          saveAppState();
         }
         
         document.addEventListener('keydown', (e) => {
@@ -619,6 +643,7 @@
               return;
             } else if (e.key === 'Enter') {
               const movie = featuredMovies[featuredCurrentMovie];
+              saveAppState();
               window.location.href = `series.html?id=${movie.dataset.id}`;
               return;
             }
@@ -645,6 +670,7 @@
               updateSelection();
             } else if (e.key === 'Enter') {
               const movie = movies[currentMovie];
+              saveAppState();
               window.location.href = `series.html?id=${movie.dataset.id}`;
             }
           }
