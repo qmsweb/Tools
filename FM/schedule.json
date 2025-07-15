@@ -1,21 +1,21 @@
 {
   "radio_fayrouz": [
     {
-      "title": "فيروز - زهرة المدائن",
+      "title": "زهرة المدائن",
       "file": "https://cdn1.esm3.com//music/164/feyroz48.mp3",
-      "start": "2025-07-15T17:20:00+04:00",
+      "start": "17:25",
       "duration": 517
     },
     {
-      "title": "بصمة إذاعية",
+      "title": "بصمة",
       "file": "sounds/jingle.mp3",
-      "start": "2025-07-15T07:04:00+04:00",
+      "start": "17:24",
       "duration": 10
     },
     {
-      "title": "فيروز - رجعت الشتوية",
+      "title": "رجعت الشتوية",
       "file": "sounds/reg3et.mp3",
-      "start": "2025-07-15T07:04:10+04:00",
+      "start": "17:24:10",
       "duration": 230
     }
   ]
