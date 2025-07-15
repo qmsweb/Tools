@@ -1,0 +1,22 @@
+{
+  "radio_fayrouz": [
+    {
+      "title": "فيروز - زهرة المدائن",
+      "file": "sounds/zahret.mp3",
+      "start": "2025-07-15T07:00:00+04:00",
+      "duration": 240
+    },
+    {
+      "title": "بصمة إذاعية",
+      "file": "sounds/jingle.mp3",
+      "start": "2025-07-15T07:04:00+04:00",
+      "duration": 10
+    },
+    {
+      "title": "فيروز - رجعت الشتوية",
+      "file": "sounds/reg3et.mp3",
+      "start": "2025-07-15T07:04:10+04:00",
+      "duration": 230
+    }
+  ]
+}
