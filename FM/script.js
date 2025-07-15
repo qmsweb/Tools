@@ -1,31 +1,32 @@
 let audio;
 let playlist = [];
 let currentIndex = 0;
-const jinglePath = 'sounds/jingle.mp3'; // مسار البصمة الصوتية
+const jinglePath = 'sounds/jingle.mp3';
 
 async function loadScheduleAndPlay() {
-  // تحميل الجدول
   const scheduleRes = await fetch('schedule.json');
   const scheduleData = await scheduleRes.json();
   playlist = scheduleData.radio_fayrouz;
 
-  // الوقت الحالي من API
   const timeRes = await fetch("https://worldtimeapi.org/api/timezone/Asia/Dubai");
   const timeData = await timeRes.json();
-  const now = new Date(timeData.datetime).getTime();
+
+  const now = new Date(timeData.datetime);
+  const nowSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
 
   let matched = false;
 
   for (let i = 0; i < playlist.length; i++) {
     const item = playlist[i];
-    const start = new Date(item.start).getTime();
-    const end = start + item.duration * 1000;
+    const parts = item.start.split(':').map(Number);
 
-    if (now >= start && now < end) {
-      const offset = (now - start) / 1000;
+    const startSeconds = (parts[0] * 3600) + (parts[1] * 60) + (parts[2] || 0);
+    const endSeconds = startSeconds + item.duration;
+
+    if (nowSeconds >= startSeconds && nowSeconds < endSeconds) {
+      const offset = nowSeconds - startSeconds;
       currentIndex = i;
 
-      // شغّل البصمة ثم الأغنية الجارية
       playJingle(() => playAudio(item.file, offset));
       matched = true;
       break;
@@ -33,7 +34,7 @@ async function loadScheduleAndPlay() {
   }
 
   if (!matched) {
-    // الوقت خارج الجدول -> ابدأ من البداية
+    // الوقت لا يطابق أي مقطع، ابدأ من البداية
     currentIndex = 0;
     playAudio(playlist[0].file, 0);
   }
@@ -48,7 +49,6 @@ function playAudio(src, offset = 0) {
   audio.currentTime = offset;
   audio.play();
 
-  // عند انتهاء الصوت، شغّل التالي
   audio.onended = () => {
     currentIndex++;
     if (currentIndex < playlist.length) {
