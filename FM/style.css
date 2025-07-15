@@ -1,0 +1,39 @@
+body {
+  background-color: #000;
+  color: white;
+  font-family: 'Arial', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 100vh;
+  margin: 0;
+}
+
+.radio-container {
+  text-align: center;
+}
+
+.radio-logo {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.controls {
+  margin-top: 20px;
+}
+
+.controls i {
+  font-size: 60px;
+  margin: 0 20px;
+  color: #1db954;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.controls i:hover {
+  transform: scale(1.1);
+}
