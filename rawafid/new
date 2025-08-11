@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء ملف JSON</title>
+    <style>
+        body {
+            direction: rtl;
+            text-align: right;
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        .item-card {
+            background-color: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .item-card h3 {
+            margin-top: 0;
+            color: #34495e;
+        }
+
+        .item-card .remove-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .add-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .add-item-btn, #generate-json-btn, #copy-json-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .add-item-btn {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        #generate-json-btn {
+            background-color: #27ae60;
+            color: #fff;
+            width: 100%;
+        }
+
+        #copy-json-btn {
+            background-color: #95a5a6;
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        #json-output {
+            margin-top: 30px;
+        }
+
+        #json-code {
+            width: 100%;
+            height: 300px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: monospace;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>إنشاء بيانات المقرر الدراسي</h1>
+        <form id="json-form">
+            <div class="form-group">
+                <label for="course-name">اسم المقرر:</label>
+                <input type="text" id="course-name" placeholder="الصفحة التجريبية">
+            </div>
+            <div class="form-group">
+                <label for="course-description">وصف المقرر:</label>
+                <textarea id="course-description" placeholder="وصف اختياري للمقرر"></textarea>
+            </div>
+
+            <h2>عناصر المقرر</h2>
+            <div id="items-container">
+                </div>
+
+            <div class="add-buttons">
+                <button type="button" class="add-item-btn" data-type="documents">إضافة مستند</button>
+                <button type="button" class="add-item-btn" data-type="videos">إضافة فيديو</button>
+                <button type="button" class="add-item-btn" data-type="quizzes">إضافة اختبار</button>
+                <button type="button" class="add-item-btn" data-type="resources">إضافة ملاحظة</button>
+            </div>
+
+            <button type="button" id="generate-json-btn">إنشاء كود JSON</button>
+        </form>
+
+        <div id="json-output" class="hidden">
+            <h2>كود JSON النهائي</h2>
+            <textarea id="json-code" readonly></textarea>
+            <button id="copy-json-btn">نسخ الكود</button>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const itemsContainer = document.getElementById('items-container');
+            const generateBtn = document.getElementById('generate-json-btn');
+            const jsonOutputDiv = document.getElementById('json-output');
+            const jsonCodeTextarea = document.getElementById('json-code');
+            const copyBtn = document.getElementById('copy-json-btn');
+            const addButtons = document.querySelectorAll('.add-item-btn');
+
+            const itemFields = {
+                'documents': `
+                    <div class="form-group">
+                        <label>رابط التحميل (download_url):</label>
+                        <input type="text" class="item-download-url" placeholder="رابط التحميل" required>
+                    </div>
+                    <div class="form-group">
+                        <label>رابط المعاينة (preview_url):</label>
+                        <input type="text" class="item-preview-url" placeholder="رابط المعاينة">
+                    </div>
+                    <input type="hidden" class="item-time-ms">
+                `,
+                'videos': `
+                    <div class="form-group">
+                        <label>رابط المعاينة (preview_url):</label>
+                        <input type="text" class="item-preview-url" placeholder="رابط فيديو يوتيوب" required>
+                    </div>
+                    <input type="hidden" class="item-time-ms">
+                `,
+                'quizzes': `
+                    <div class="form-group">
+                        <label>رابط المعاينة (preview_url):</label>
+                        <input type="text" class="item-preview-url" placeholder="رابط الاختبار" required>
+                    </div>
+                    <div class="form-group">
+                        <label>شعار (badge):</label>
+                        <input type="text" class="item-badge" placeholder="مثل: new">
+                    </div>
+                    <div class="form-group">
+                        <label>نص الشعار (badgeText):</label>
+                        <input type="text" class="item-badge-text" placeholder="مثل: جديد">
+                    </div>
+                `,
+                'resources': `
+                    <div class="form-group">
+                        <label>شعار (badge):</label>
+                        <input type="text" class="item-badge" placeholder="مثل: important">
+                    </div>
+                    <div class="form-group">
+                        <label>نص الشعار (badgeText):</label>
+                        <input type="text" class="item-badge-text" placeholder="مثل: عاجل">
+                    </div>
+                    <input type="hidden" class="item-time-ms">
+                `
+            };
+
+            const addItem = (type) => {
+                const titleMap = {
+                    'documents': 'مستند',
+                    'videos': 'فيديو',
+                    'quizzes': 'اختبار',
+                    'resources': 'ملاحظة'
+                };
+
+                const now = new Date().getTime(); // الحصول على التوقيت الحالي بالمللي ثانية
+
+                const itemCard = document.createElement('div');
+                itemCard.className = 'item-card';
+                itemCard.innerHTML = `
+                    <h3>إضافة ${titleMap[type]}</h3>
+                    <button type="button" class="remove-btn">حذف</button>
+                    <input type="hidden" class="item-type" value="${type}">
+                    <div class="form-group">
+                        <label>العنوان:</label>
+                        <input type="text" class="item-title" placeholder="عنوان العنصر" required>
+                    </div>
+                    <div class="form-group">
+                        <label>الوصف:</label>
+                        <textarea class="item-description" placeholder="وصف اختياري"></textarea>
+                    </div>
+                    ${itemFields[type] || ''}
+                    <input type="hidden" class="item-time-ms" value="${now}">
+                `;
+                itemsContainer.appendChild(itemCard);
+            };
+
+            addButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const type = button.dataset.type;
+                    addItem(type);
+                });
+            });
+
+            itemsContainer.addEventListener('click', (event) => {
+                if (event.target.classList.contains('remove-btn')) {
+                    event.target.closest('.item-card').remove();
+                }
+            });
+
+            generateBtn.addEventListener('click', () => {
+                const courseName = document.getElementById('course-name').value || "الصفحة التجريبية";
+                const courseDescription = document.getElementById('course-description').value || "";
+
+                const items = [];
+                const itemCards = document.querySelectorAll('.item-card');
+
+                itemCards.forEach(card => {
+                    const item = {
+                        title: card.querySelector('.item-title').value,
+                        description: card.querySelector('.item-description').value || "",
+                        type: card.querySelector('.item-type').value
+                    };
+
+                    const previewUrl = card.querySelector('.item-preview-url');
+                    if (previewUrl && previewUrl.value) item.preview_url = previewUrl.value;
+
+                    const downloadUrl = card.querySelector('.item-download-url');
+                    if (downloadUrl && downloadUrl.value) item.download_url = downloadUrl.value;
+
+                    const timeMs = card.querySelector('.item-time-ms');
+                    if (timeMs && timeMs.value) item["time-ms"] = timeMs.value;
+
+                    const badge = card.querySelector('.item-badge');
+                    if (badge && badge.value) item.badge = badge.value;
+
+                    const badgeText = card.querySelector('.item-badge-text');
+                    if (badgeText && badgeText.value) item.badgeText = badgeText.value;
+
+                    items.push(item);
+                });
+
+                const finalObject = {
+                    "name": courseName,
+                    "description": courseDescription,
+                    "items": items
+                };
+
+                jsonCodeTextarea.value = JSON.stringify(finalObject, null, 2);
+                jsonOutputDiv.classList.remove('hidden');
+            });
+
+            copyBtn.addEventListener('click', () => {
+                jsonCodeTextarea.select();
+                document.execCommand('copy');
+                alert('تم نسخ كود JSON!');
+            });
+        });
+    </script>
+</body>
+</html>
