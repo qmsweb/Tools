@@ -19,7 +19,7 @@
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
     <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-5xl space-y-6">
         <h1 class="text-3xl font-bold text-center text-gray-800">مولد YAML للاختبارات</h1>
-        
+
         <!-- معلومات الاختبار -->
         <div class="space-y-4 bg-gray-50 p-6 rounded-xl shadow-inner">
             <label for="quiz-title-input" class="block text-lg font-medium text-gray-700">عنوان الاختبار:</label>
@@ -35,6 +35,15 @@
                     <input type="text" id="subject-code-input" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: CS101">
                 </div>
             </div>
+        </div>
+
+        <!-- استيراد كود YAML -->
+        <div class="space-y-4 bg-gray-50 p-6 rounded-xl shadow-inner">
+            <h2 class="text-xl font-bold text-gray-800">استيراد كود YAML</h2>
+            <textarea id="yaml-input-area" rows="8" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm" placeholder="الصق كود YAML هنا ليتم تحويله إلى نموذج قابل للتعديل..."></textarea>
+            <button id="load-yaml-btn" class="w-full bg-orange-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-orange-700 transition-colors duration-200">
+                تحويل كود YAML
+            </button>
         </div>
 
         <!-- قائمة الأسئلة -->
@@ -85,7 +94,7 @@
         document.getElementById('message-close-btn').addEventListener('click', () => {
             document.getElementById('message-box').classList.add('hidden');
         });
-        
+
         // متغير لعداد الأسئلة
         let questionCounter = 0;
 
@@ -98,8 +107,15 @@
             });
         }
 
-        // عند النقر على زر "إضافة سؤال جديد"
-        document.getElementById('add-question-btn').addEventListener('click', () => {
+        // دالة لمسح جميع الأسئلة
+        function clearAllQuestions() {
+            const questionsContainer = document.getElementById('questions-container');
+            questionsContainer.innerHTML = '';
+            questionCounter = 0;
+        }
+        
+        // دالة جديدة لإضافة سؤال جديد، والتي ستعيد العنصر الجديد بعد إنشائه
+        function addQuestion() {
             questionCounter++;
             const questionsContainer = document.getElementById('questions-container');
 
@@ -127,10 +143,10 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <label for="q-${questionCounter}-text" class="block text-sm font-medium text-gray-700">نص السؤال:</label>
                 <input type="text" id="q-${questionCounter}-text" class="question-text w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: ما هو تاريخ تأسيس الدولة السعودية الثالثة؟">
-                
+
                 <div class="flex space-x-4 space-x-reverse">
                     <div class="w-1/2">
                         <label for="q-${questionCounter}-type" class="block text-sm font-medium text-gray-700">نوع السؤال:</label>
@@ -152,6 +168,35 @@
             questionsContainer.appendChild(questionBlock);
             updateQuestionNumbers();
             setupEventListeners(questionBlock);
+
+            // التأكد من أن القيمة الافتراضية 'mcq' يتم عرض خياراتها بشكل صحيح
+            const optionsContainer = questionBlock.querySelector('.options-container');
+            optionsContainer.innerHTML = `
+                <div id="q-${questionCounter}-mcq-choices" class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">خيارات الإجابة:</label>
+                    <div class="flex items-center gap-2 choice-group">
+                        <input type="radio" id="q-${questionCounter}-answer-0" name="q-${questionCounter}-answer" class="text-blue-600 focus:ring-blue-500 h-4 w-4" value="0" checked>
+                        <label for="q-${questionCounter}-answer-0" class="sr-only">الإجابة الصحيحة</label>
+                        <input type="text" id="q-${questionCounter}-choice-0" class="choice-text w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="خيار 1">
+                        <button class="remove-choice-btn text-red-500 hover:text-red-700 transition-colors hidden" type="button" title="حذف الخيار">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <button class="add-choice-btn mt-2 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg text-sm hover:bg-gray-300 transition-colors duration-200" type="button">
+                    إضافة خيار إجابة
+                </button>
+            `;
+            setupChoiceEventListeners(questionBlock);
+            
+            return questionBlock; // لإرجاع العنصر الجديد
+        }
+
+        // عند النقر على زر "إضافة سؤال جديد"
+        document.getElementById('add-question-btn').addEventListener('click', () => {
+            addQuestion();
         });
 
         // دالة لإعداد مستمعي الأحداث لكل سؤال
@@ -191,36 +236,6 @@
                     `;
                 }
             });
-
-            // إعداد مستمعي الأحداث لخيارات الاختيار من متعدد
-            const initialType = questionTypeSelect.value;
-            if (initialType === 'mcq') {
-                optionsContainer.innerHTML = `
-                    <div id="q-${questionId}-mcq-choices" class="space-y-2">
-                        <label class="block text-sm font-medium text-gray-700">خيارات الإجابة:</label>
-                        <div class="flex items-center gap-2 choice-group">
-                            <input type="radio" id="q-${questionId}-answer-0" name="q-${questionId}-answer" class="text-blue-600 focus:ring-blue-500 h-4 w-4" value="0" checked>
-                            <label for="q-${questionId}-answer-0" class="sr-only">الإجابة الصحيحة</label>
-                            <input type="text" id="q-${questionId}-choice-0" class="choice-text w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="خيار 1">
-                            <button class="remove-choice-btn text-red-500 hover:text-red-700 transition-colors hidden" type="button" title="حذف الخيار">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <button class="add-choice-btn mt-2 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg text-sm hover:bg-gray-300 transition-colors duration-200" type="button">
-                        إضافة خيار إجابة
-                    </button>
-                `;
-                setupChoiceEventListeners(questionBlock);
-            } else if (initialType === 'essay') {
-                 optionsContainer.innerHTML = `
-                    <label for="q-${questionId}-answer-essay" class="block text-sm font-medium text-gray-700">الإجابة النموذجية:</label>
-                    <textarea id="q-${questionId}-answer-essay" class="answer-essay w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="4" placeholder="اكتب الإجابة النموذجية هنا..."></textarea>
-                `;
-            }
-
         }
 
         function setupChoiceEventListeners(questionBlock) {
@@ -315,14 +330,14 @@
                 showMessage('يرجى إدخال رمز المقرر.');
                 return;
             }
-            
+
             let hasError = false;
 
             questionsContainer.querySelectorAll('.question-block').forEach(qBlock => {
                 const questionText = qBlock.querySelector('.question-text').value.trim();
                 const questionType = qBlock.querySelector('.question-type').value;
                 const questionPoints = parseInt(qBlock.querySelector('.question-points').value, 10);
-                
+
                 if (!questionText || isNaN(questionPoints)) {
                     showMessage('يرجى ملء جميع حقول الأسئلة بشكل صحيح.');
                     hasError = true;
@@ -344,14 +359,14 @@
                             choices.push(choiceText);
                         }
                     });
-                    
+
                     const checkedRadio = qBlock.querySelector('input[type="radio"]:checked');
                     if (choices.length === 0 || !checkedRadio) {
                         showMessage('يرجى إضافة خيارات الإجابة وتحديد الإجابة الصحيحة لأسئلة الاختيار من متعدد.');
                         hasError = true;
                         return;
                     }
-                    
+
                     const answerIndex = parseInt(checkedRadio.value, 10);
                     newQuestion.choices = choices;
                     newQuestion.answer = choices[answerIndex];
@@ -412,9 +427,88 @@
             }
         });
 
+        // عند النقر على زر "تحويل كود YAML"
+        document.getElementById('load-yaml-btn').addEventListener('click', () => {
+            const yamlInput = document.getElementById('yaml-input-area').value;
+            if (!yamlInput) {
+                showMessage('يرجى لصق كود YAML في الحقل أولاً.');
+                return;
+            }
+
+            try {
+                const parsedYaml = jsyaml.load(yamlInput);
+                if (!parsedYaml || !Array.isArray(parsedYaml) || parsedYaml.length === 0) {
+                    showMessage('كود YAML غير صالح أو فارغ.');
+                    return;
+                }
+
+                const quizData = parsedYaml[0];
+
+                // تعبئة حقول معلومات الاختبار
+                document.getElementById('quiz-title-input').value = quizData.title || '';
+                document.getElementById('subject-name-input').value = quizData['subject-name'] || '';
+                document.getElementById('subject-code-input').value = quizData['subject-code'] || '';
+
+                // مسح الأسئلة الحالية
+                clearAllQuestions();
+
+                // تعبئة الأسئلة الجديدة
+                if (quizData.questions && Array.isArray(quizData.questions)) {
+                    quizData.questions.forEach(q => {
+                        // استخدام الدالة الجديدة لإضافة سؤال بدلاً من محاولة "الضغط" على الزر، مما يحل خطأ "newQuestionBlock is undefined"
+                        const newQuestionBlock = addQuestion();
+                        const qId = newQuestionBlock.id.split('-')[1];
+
+                        // تعبئة الحقول المشتركة
+                        newQuestionBlock.querySelector('.question-text').value = q.question || '';
+                        newQuestionBlock.querySelector('.question-points').value = q.points || 1;
+                        newQuestionBlock.querySelector('.question-type').value = q.type || 'mcq';
+                        newQuestionBlock.querySelector('.question-type').dispatchEvent(new Event('change'));
+
+                        // تعبئة الحقول الخاصة بنوع السؤال
+                        if (q.type === 'mcq' && q.choices && Array.isArray(q.choices)) {
+                            const optionsContainer = newQuestionBlock.querySelector('.options-container');
+                            const choicesDiv = optionsContainer.querySelector('[id$="-mcq-choices"]');
+
+                            // إزالة الخيار الافتراضي الذي يتم إنشاؤه تلقائياً
+                            choicesDiv.innerHTML = '';
+
+                            q.choices.forEach((choiceText, index) => {
+                                // إضافة خيار جديد
+                                const newChoiceDiv = document.createElement('div');
+                                newChoiceDiv.className = 'flex items-center gap-2 choice-group';
+                                newChoiceDiv.innerHTML = `
+                                    <input type="radio" id="q-${qId}-answer-${index}" name="q-${qId}-answer" class="text-blue-600 focus:ring-blue-500 h-4 w-4" value="${index}">
+                                    <label for="q-${qId}-answer-${index}" class="sr-only">الإجابة الصحيحة</label>
+                                    <input type="text" id="q-${qId}-choice-${index}" class="choice-text w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="خيار ${index + 1}" value="${choiceText || ''}">
+                                    <button class="remove-choice-btn text-red-500 hover:text-red-700 transition-colors" type="button" title="حذف الخيار">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                `;
+                                choicesDiv.appendChild(newChoiceDiv);
+
+                                // تحديد الإجابة الصحيحة
+                                if (choiceText === q.answer) {
+                                    newQuestionBlock.querySelector(`#q-${qId}-answer-${index}`).checked = true;
+                                }
+                            });
+                        } else if (q.type === 'essay') {
+                            newQuestionBlock.querySelector('.answer-essay').value = q.answer || '';
+                        }
+                    });
+                }
+                showMessage('تم استيراد البيانات بنجاح!');
+            } catch (e) {
+                showMessage(`خطأ في تحليل كود YAML: ${e.message}`);
+                console.error('YAML parsing error:', e);
+            }
+        });
+
         // إضافة سؤال افتراضي عند تحميل الصفحة
         window.onload = function() {
-            document.getElementById('add-question-btn').click();
+            addQuestion();
         }
     </script>
 </body>
