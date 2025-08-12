@@ -18,7 +18,7 @@
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
     <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-5xl space-y-6">
-        <h1 class="text-3xl font-bold text-center text-gray-800">مولد YAML للاختبارات</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800">مولّد اختبارات روافد</h1>
 
         <!-- معلومات الاختبار -->
         <div class="space-y-4 bg-gray-50 p-6 rounded-xl shadow-inner">
@@ -291,7 +291,9 @@
         document.getElementById('questions-container').addEventListener('click', (e) => {
             const questionBlock = e.target.closest('.question-block');
             if (!questionBlock) return;
-
+            
+            const questionsContainer = document.getElementById('questions-container'); // تحديد المتغير هنا
+            
             if (e.target.closest('.remove-question-btn')) {
                 questionBlock.remove();
                 updateQuestionNumbers();
