@@ -3,315 +3,366 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إنشاء ملف JSON</title>
+    <title>مولد JSON لبيانات المواد</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap');
         body {
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
             direction: rtl;
-            text-align: right;
-            font-family: Arial, sans-serif;
-            background-color: #f4f7f9;
-            color: #333;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        h1, h2 {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: #555;
-        }
-
-        input[type="text"], textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-
-        .item-card {
-            background-color: #ecf0f1;
-            border: 1px solid #bdc3c7;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            position: relative;
-        }
-
-        .item-card h3 {
-            margin-top: 0;
-            color: #34495e;
-        }
-
-        .item-card .remove-btn {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: #e74c3c;
-            color: #fff;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .add-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .add-item-btn, #generate-json-btn, #copy-json-btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        .add-item-btn {
-            background-color: #3498db;
-            color: #fff;
-        }
-
-        #generate-json-btn {
-            background-color: #27ae60;
-            color: #fff;
-            width: 100%;
-        }
-
-        #copy-json-btn {
-            background-color: #95a5a6;
-            color: #fff;
-            margin-top: 10px;
-        }
-
-        #json-output {
-            margin-top: 30px;
-        }
-
-        #json-code {
-            width: 100%;
-            height: 300px;
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 15px;
-            font-family: monospace;
-            font-size: 14px;
-            box-sizing: border-box;
-        }
-
-        .hidden {
-            display: none;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>إنشاء بيانات المقرر الدراسي</h1>
-        <form id="json-form">
-            <div class="form-group">
-                <label for="course-name">اسم المقرر:</label>
-                <input type="text" id="course-name" placeholder="الصفحة التجريبية">
-            </div>
-            <div class="form-group">
-                <label for="course-description">وصف المقرر:</label>
-                <textarea id="course-description" placeholder="وصف اختياري للمقرر"></textarea>
-            </div>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-5xl space-y-6">
+        <h1 class="text-3xl font-bold text-center text-gray-800">مولد JSON لبيانات المواد</h1>
 
-            <h2>عناصر المقرر</h2>
-            <div id="items-container">
+        <!-- معلومات الصفحة الرئيسية -->
+        <div class="space-y-4 bg-gray-50 p-6 rounded-xl shadow-inner">
+            <h2 class="text-xl font-bold text-gray-800">معلومات الصفحة الرئيسية</h2>
+            <label for="page-name-input" class="block text-lg font-medium text-gray-700">عنوان الصفحة:</label>
+            <input type="text" id="page-name-input" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: ملخصات شاملة">
+            <label for="page-description-input" class="block text-lg font-medium text-gray-700">وصف الصفحة:</label>
+            <textarea id="page-description-input" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: هذه الصفحة مخصصة لعرض ملخصات كافة المقررات"></textarea>
+        </div>
+
+        <!-- استيراد كود JSON -->
+        <div class="space-y-4 bg-gray-50 p-6 rounded-xl shadow-inner">
+            <h2 class="text-xl font-bold text-gray-800">استيراد كود JSON</h2>
+            <textarea id="json-input-area" rows="8" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm" placeholder="الصق كود JSON هنا ليتم تحويله إلى نموذج قابل للتعديل..."></textarea>
+            <button id="load-json-btn" class="w-full bg-orange-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-orange-700 transition-colors duration-200">
+                تحويل كود JSON
+            </button>
+        </div>
+
+        <!-- قائمة العناصر -->
+        <div id="items-container" class="space-y-6">
+            <!-- سيتم إضافة العناصر هنا بواسطة JavaScript -->
+        </div>
+
+        <!-- زر إضافة عنصر -->
+        <button id="add-item-btn" class="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-green-700 transition-colors duration-200">
+            إضافة عنصر جديد
+        </button>
+
+        <!-- زر توليد JSON -->
+        <button id="generate-json-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-colors duration-200">
+            توليد كود JSON
+        </button>
+
+        <!-- منطقة عرض JSON -->
+        <div id="json-output-section" class="space-y-4 hidden">
+            <h2 class="text-xl font-bold text-gray-800">كود JSON الناتج:</h2>
+            <div class="relative">
+                <textarea id="json-output" readonly rows="15" class="w-full p-4 border border-gray-300 rounded-lg bg-gray-50 font-mono text-sm"></textarea>
+                <button id="copy-json-btn" class="absolute top-3 right-3 bg-gray-200 text-gray-800 py-1 px-3 rounded-lg text-sm hover:bg-gray-300 transition-colors duration-200">
+                    نسخ
+                </button>
+            </div>
+        </div>
+
+        <!-- مربع الرسائل المخصص -->
+        <div id="message-box" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-xl shadow-2xl border border-gray-200 max-w-sm w-full text-center hidden">
+            <p id="message-text" class="text-gray-800 font-medium"></p>
+            <button id="message-close-btn" class="mt-4 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors duration-200">
+                إغلاق
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // دالة لعرض رسائل مخصصة بدلاً من alert
+        function showMessage(text) {
+            const messageBox = document.getElementById('message-box');
+            const messageText = document.getElementById('message-text');
+            messageText.textContent = text;
+            messageBox.classList.remove('hidden');
+        }
+
+        document.getElementById('message-close-btn').addEventListener('click', () => {
+            document.getElementById('message-box').classList.add('hidden');
+        });
+
+        // متغير لعداد العناصر
+        let itemCounter = 0;
+
+        // دالة لتحديث أرقام العناصر
+        function updateItemNumbers() {
+            const items = document.querySelectorAll('.item-block');
+            items.forEach((iBlock, index) => {
+                const itemNumber = index + 1;
+                iBlock.querySelector('h3').textContent = `عنصر #${itemNumber}`;
+            });
+        }
+
+        // دالة لمسح جميع العناصر
+        function clearAllItems() {
+            const itemsContainer = document.getElementById('items-container');
+            itemsContainer.innerHTML = '';
+            itemCounter = 0;
+        }
+
+        // دالة جديدة لإضافة عنصر جديد
+        function addItem() {
+            itemCounter++;
+            const itemsContainer = document.getElementById('items-container');
+
+            const itemBlock = document.createElement('div');
+            itemBlock.id = `item-${itemCounter}`;
+            itemBlock.className = 'item-block bg-gray-50 p-6 rounded-xl shadow-inner border border-gray-200 space-y-4';
+            itemBlock.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">عنصر #${itemCounter}</h3>
+                    <div class="flex space-x-2 space-x-reverse">
+                        <button class="move-up-btn text-gray-500 hover:text-gray-700 transition-colors" title="نقل لأعلى">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                            </svg>
+                        </button>
+                        <button class="move-down-btn text-gray-500 hover:text-gray-700 transition-colors" title="نقل لأسفل">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <button class="remove-item-btn text-red-500 hover:text-red-700 transition-colors" title="حذف العنصر">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
-            <div class="add-buttons">
-                <button type="button" class="add-item-btn" data-type="documents">إضافة مستند</button>
-                <button type="button" class="add-item-btn" data-type="videos">إضافة فيديو</button>
-                <button type="button" class="add-item-btn" data-type="quizzes">إضافة اختبار</button>
-                <button type="button" class="add-item-btn" data-type="resources">إضافة ملاحظة</button>
-            </div>
+                <label for="i-${itemCounter}-title" class="block text-sm font-medium text-gray-700">عنوان العنصر:</label>
+                <input type="text" id="i-${itemCounter}-title" class="item-title w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: ملخص 1">
 
-            <button type="button" id="generate-json-btn">إنشاء كود JSON</button>
-        </form>
+                <label for="i-${itemCounter}-description" class="block text-sm font-medium text-gray-700">وصف العنصر:</label>
+                <textarea id="i-${itemCounter}-description" rows="2" class="item-description w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="اكتب وصف العنصر هنا..."></textarea>
 
-        <div id="json-output" class="hidden">
-            <h2>كود JSON النهائي</h2>
-            <textarea id="json-code" readonly></textarea>
-            <button id="copy-json-btn">نسخ الكود</button>
-        </div>
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const itemsContainer = document.getElementById('items-container');
-            const generateBtn = document.getElementById('generate-json-btn');
-            const jsonOutputDiv = document.getElementById('json-output');
-            const jsonCodeTextarea = document.getElementById('json-code');
-            const copyBtn = document.getElementById('copy-json-btn');
-            const addButtons = document.querySelectorAll('.add-item-btn');
+                <label for="i-${itemCounter}-type" class="block text-sm font-medium text-gray-700">نوع العنصر:</label>
+                <select id="i-${itemCounter}-type" class="item-type w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <option value="documents">مستندات</option>
+                    <option value="videos">فيديوهات</option>
+                    <option value="quizzes">اختبارات</option>
+                    <option value="resources">موارد</option>
+                </select>
 
-            const itemFields = {
-                'documents': `
-                    <div class="form-group">
-                        <label>رابط التحميل (download_url):</label>
-                        <input type="text" class="item-download-url" placeholder="رابط التحميل" required>
-                    </div>
-                    <div class="form-group">
-                        <label>رابط المعاينة (preview_url):</label>
-                        <input type="text" class="item-preview-url" placeholder="رابط المعاينة">
-                    </div>
-                    <input type="hidden" class="item-time-ms">
-                `,
-                'videos': `
-                    <div class="form-group">
-                        <label>رابط المعاينة (preview_url):</label>
-                        <input type="text" class="item-preview-url" placeholder="رابط فيديو يوتيوب" required>
-                    </div>
-                    <input type="hidden" class="item-time-ms">
-                `,
-                'quizzes': `
-                    <div class="form-group">
-                        <label>رابط المعاينة (preview_url):</label>
-                        <input type="text" class="item-preview-url" placeholder="رابط الاختبار" required>
-                    </div>
-                    <div class="form-group">
-                        <label>شعار (badge):</label>
-                        <input type="text" class="item-badge" placeholder="مثل: new">
-                    </div>
-                    <div class="form-group">
-                        <label>نص الشعار (badgeText):</label>
-                        <input type="text" class="item-badge-text" placeholder="مثل: جديد">
-                    </div>
-                `,
-                'resources': `
-                    <div class="form-group">
-                        <label>شعار (badge):</label>
-                        <input type="text" class="item-badge" placeholder="مثل: important">
-                    </div>
-                    <div class="form-group">
-                        <label>نص الشعار (badgeText):</label>
-                        <input type="text" class="item-badge-text" placeholder="مثل: عاجل">
-                    </div>
-                    <input type="hidden" class="item-time-ms">
-                `
-            };
+                <div id="i-${itemCounter}-type-fields" class="type-fields space-y-4 mt-4">
+                    <!-- حقول خاصة بنوع العنصر -->
+                </div>
+            `;
+            itemsContainer.appendChild(itemBlock);
+            updateItemNumbers();
+            setupEventListeners(itemBlock);
+            itemBlock.querySelector('.item-type').dispatchEvent(new Event('change')); // لتوليد الحقول الأولية
+            return itemBlock; // إرجاع العنصر الجديد
+        }
 
-            const addItem = (type) => {
-                const titleMap = {
-                    'documents': 'مستند',
-                    'videos': 'فيديو',
-                    'quizzes': 'اختبار',
-                    'resources': 'ملاحظة'
-                };
+        // عند النقر على زر "إضافة عنصر جديد"
+        document.getElementById('add-item-btn').addEventListener('click', () => {
+            addItem();
+        });
 
-                const now = new Date().getTime(); // الحصول على التوقيت الحالي بالمللي ثانية
+        // دالة لإعداد مستمعي الأحداث لكل عنصر
+        function setupEventListeners(itemBlock) {
+            const itemId = itemBlock.id.split('-')[1];
 
-                const itemCard = document.createElement('div');
-                itemCard.className = 'item-card';
-                itemCard.innerHTML = `
-                    <h3>إضافة ${titleMap[type]}</h3>
-                    <button type="button" class="remove-btn">حذف</button>
-                    <input type="hidden" class="item-type" value="${type}">
-                    <div class="form-group">
-                        <label>العنوان:</label>
-                        <input type="text" class="item-title" placeholder="عنوان العنصر" required>
-                    </div>
-                    <div class="form-group">
-                        <label>الوصف:</label>
-                        <textarea class="item-description" placeholder="وصف اختياري"></textarea>
-                    </div>
-                    ${itemFields[type] || ''}
-                    <input type="hidden" class="item-time-ms" value="${now}">
-                `;
-                itemsContainer.appendChild(itemCard);
-            };
+            // مستمع للتحكم في عرض الحقول بناءً على نوع العنصر
+            const itemTypeSelect = itemBlock.querySelector('.item-type');
+            const typeFieldsContainer = itemBlock.querySelector('.type-fields');
 
-            addButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const type = button.dataset.type;
-                    addItem(type);
-                });
-            });
+            itemTypeSelect.addEventListener('change', (e) => {
+                const type = e.target.value;
+                typeFieldsContainer.innerHTML = ''; // مسح الحقول الحالية
 
-            itemsContainer.addEventListener('click', (event) => {
-                if (event.target.classList.contains('remove-btn')) {
-                    event.target.closest('.item-card').remove();
+                if (type === 'documents') {
+                    typeFieldsContainer.innerHTML = `
+                        <label for="i-${itemId}-preview-url" class="block text-sm font-medium text-gray-700">رابط المعاينة:</label>
+                        <input type="text" id="i-${itemId}-preview-url" class="item-preview-url w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: 21">
+                        <label for="i-${itemId}-download-url" class="block text-sm font-medium text-gray-700">رابط التحميل:</label>
+                        <input type="text" id="i-${itemId}-download-url" class="item-download-url w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: 12">
+                    `;
+                } else if (type === 'videos') {
+                    typeFieldsContainer.innerHTML = `
+                        <label for="i-${itemId}-preview-url" class="block text-sm font-medium text-gray-700">رابط الفيديو:</label>
+                        <input type="text" id="i-${itemId}-preview-url" class="item-preview-url w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: 31">
+                    `;
+                } else if (type === 'quizzes') {
+                    typeFieldsContainer.innerHTML = `
+                        <label for="i-${itemId}-preview-url" class="block text-sm font-medium text-gray-700">رابط الاختبار:</label>
+                        <input type="text" id="i-${itemId}-preview-url" class="item-preview-url w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: صثص">
+                        <label for="i-${itemId}-time-ms" class="block text-sm font-medium text-gray-700">وقت الإنشاء (بالمللي ثانية):</label>
+                        <input type="text" id="i-${itemId}-time-ms" class="item-time-ms w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: 1754955273178">
+                    `;
+                } else if (type === 'resources') {
+                    // لا يوجد حقول إضافية
                 }
             });
+        }
 
-            generateBtn.addEventListener('click', () => {
-                const courseName = document.getElementById('course-name').value || "الصفحة التجريبية";
-                const courseDescription = document.getElementById('course-description').value || "";
+        // مستمع أحداث رئيسي على حاوية العناصر للتعامل مع الأزرار الديناميكية
+        document.getElementById('items-container').addEventListener('click', (e) => {
+            const itemBlock = e.target.closest('.item-block');
+            if (!itemBlock) return;
 
-                const items = [];
-                const itemCards = document.querySelectorAll('.item-card');
+            const itemsContainer = document.getElementById('items-container');
 
-                itemCards.forEach(card => {
-                    const item = {
-                        title: card.querySelector('.item-title').value,
-                        description: card.querySelector('.item-description').value || "",
-                        type: card.querySelector('.item-type').value
-                    };
+            if (e.target.closest('.remove-item-btn')) {
+                itemBlock.remove();
+                updateItemNumbers();
+            } else if (e.target.closest('.move-up-btn')) {
+                const prevItem = itemBlock.previousElementSibling;
+                if (prevItem) {
+                    itemsContainer.insertBefore(itemBlock, prevItem);
+                    updateItemNumbers();
+                }
+            } else if (e.target.closest('.move-down-btn')) {
+                const nextItem = itemBlock.nextElementSibling;
+                if (nextItem) {
+                    itemsContainer.insertBefore(nextItem, itemBlock);
+                    updateItemNumbers();
+                }
+            }
+        });
 
-                    const previewUrl = card.querySelector('.item-preview-url');
-                    if (previewUrl && previewUrl.value) item.preview_url = previewUrl.value;
+        // عند النقر على زر "توليد كود JSON"
+        document.getElementById('generate-json-btn').addEventListener('click', () => {
+            const pageName = document.getElementById('page-name-input').value.trim();
+            const pageDescription = document.getElementById('page-description-input').value.trim();
+            const items = [];
+            const itemsContainer = document.getElementById('items-container');
 
-                    const downloadUrl = card.querySelector('.item-download-url');
-                    if (downloadUrl && downloadUrl.value) item.download_url = downloadUrl.value;
+            if (!pageName) {
+                showMessage('يرجى إدخال عنوان الصفحة.');
+                return;
+            }
 
-                    const timeMs = card.querySelector('.item-time-ms');
-                    if (timeMs && timeMs.value) item["time-ms"] = timeMs.value;
+            let hasError = false;
 
-                    const badge = card.querySelector('.item-badge');
-                    if (badge && badge.value) item.badge = badge.value;
+            itemsContainer.querySelectorAll('.item-block').forEach(iBlock => {
+                const itemTitle = iBlock.querySelector('.item-title').value.trim();
+                const itemDescription = iBlock.querySelector('.item-description').value.trim();
+                const itemType = iBlock.querySelector('.item-type').value;
 
-                    const badgeText = card.querySelector('.item-badge-text');
-                    if (badgeText && badgeText.value) item.badgeText = badgeText.value;
+                if (!itemTitle) {
+                    showMessage('يرجى ملء حقل عنوان العنصر لكل عنصر.');
+                    hasError = true;
+                    return;
+                }
 
-                    items.push(item);
-                });
-
-                const finalObject = {
-                    "name": courseName,
-                    "description": courseDescription,
-                    "items": items
+                const newItem = {
+                    title: itemTitle,
+                    description: itemDescription,
+                    type: itemType
                 };
 
-                jsonCodeTextarea.value = JSON.stringify(finalObject, null, 2);
-                jsonOutputDiv.classList.remove('hidden');
+                // إضافة الحقول الخاصة بنوع العنصر
+                if (itemType === 'documents') {
+                    const previewUrl = iBlock.querySelector('.item-preview-url').value.trim();
+                    const downloadUrl = iBlock.querySelector('.item-download-url').value.trim();
+                    newItem['preview_url'] = previewUrl;
+                    newItem['download_url'] = downloadUrl;
+                } else if (itemType === 'videos') {
+                    const previewUrl = iBlock.querySelector('.item-preview-url').value.trim();
+                    newItem['preview_url'] = previewUrl;
+                } else if (itemType === 'quizzes') {
+                    const previewUrl = iBlock.querySelector('.item-preview-url').value.trim();
+                    const timeMs = iBlock.querySelector('.item-time-ms').value.trim();
+                    newItem['preview_url'] = previewUrl;
+                    newItem['time-ms'] = timeMs;
+                }
+                
+                items.push(newItem);
             });
 
-            copyBtn.addEventListener('click', () => {
-                jsonCodeTextarea.select();
-                document.execCommand('copy');
-                alert('تم نسخ كود JSON!');
-            });
+            if (hasError) {
+                return;
+            }
+
+            const pageObject = {
+                name: pageName,
+                description: pageDescription,
+                items: items
+            };
+
+            const jsonString = JSON.stringify(pageObject, null, 2);
+
+            document.getElementById('json-output').value = jsonString;
+            document.getElementById('json-output-section').classList.remove('hidden');
         });
+
+        // عند النقر على زر "نسخ"
+        document.getElementById('copy-json-btn').addEventListener('click', () => {
+            const outputTextarea = document.getElementById('json-output');
+            outputTextarea.select();
+            outputTextarea.setSelectionRange(0, 99999);
+            try {
+                document.execCommand('copy');
+                showMessage('تم نسخ الكود بنجاح!');
+            } catch (err) {
+                showMessage('فشل النسخ. يرجى النسخ يدوياً.');
+                console.error('Copy failed', err);
+            }
+        });
+
+        // عند النقر على زر "تحويل كود JSON"
+        document.getElementById('load-json-btn').addEventListener('click', () => {
+            const jsonInput = document.getElementById('json-input-area').value;
+            if (!jsonInput) {
+                showMessage('يرجى لصق كود JSON في الحقل أولاً.');
+                return;
+            }
+
+            try {
+                const parsedJson = JSON.parse(jsonInput);
+                if (!parsedJson || !parsedJson.items || !Array.isArray(parsedJson.items)) {
+                    showMessage('كود JSON غير صالح أو فارغ.');
+                    return;
+                }
+
+                // تعبئة حقول معلومات الصفحة
+                document.getElementById('page-name-input').value = parsedJson.name || '';
+                document.getElementById('page-description-input').value = parsedJson.description || '';
+
+                // مسح العناصر الحالية
+                clearAllItems();
+
+                // تعبئة العناصر الجديدة
+                if (parsedJson.items && Array.isArray(parsedJson.items)) {
+                    parsedJson.items.forEach(item => {
+                        const newItemBlock = addItem();
+                        const itemId = newItemBlock.id.split('-')[1];
+
+                        // تعبئة الحقول المشتركة
+                        newItemBlock.querySelector('.item-title').value = item.title || '';
+                        newItemBlock.querySelector('.item-description').value = item.description || '';
+                        newItemBlock.querySelector('.item-type').value = item.type || 'documents';
+                        newItemBlock.querySelector('.item-type').dispatchEvent(new Event('change'));
+
+                        // تعبئة الحقول الخاصة بنوع العنصر
+                        if (item.type === 'documents') {
+                            newItemBlock.querySelector(`#i-${itemId}-preview-url`).value = item.preview_url || '';
+                            newItemBlock.querySelector(`#i-${itemId}-download-url`).value = item.download_url || '';
+                        } else if (item.type === 'videos') {
+                            newItemBlock.querySelector(`#i-${itemId}-preview-url`).value = item.preview_url || '';
+                        } else if (item.type === 'quizzes') {
+                            newItemBlock.querySelector(`#i-${itemId}-preview-url`).value = item.preview_url || '';
+                            newItemBlock.querySelector(`#i-${itemId}-time-ms`).value = item['time-ms'] || '';
+                        }
+                    });
+                }
+                showMessage('تم استيراد البيانات بنجاح!');
+            } catch (e) {
+                showMessage(`خطأ في تحليل كود JSON: ${e.message}`);
+                console.error('JSON parsing error:', e);
+            }
+        });
+
+        // إضافة عنصر افتراضي عند تحميل الصفحة
+        window.onload = function() {
+            addItem();
+        }
     </script>
 </body>
 </html>
