@@ -24,6 +24,17 @@
         <div class="space-y-4 bg-gray-50 p-6 rounded-xl shadow-inner">
             <label for="quiz-title-input" class="block text-lg font-medium text-gray-700">عنوان الاختبار:</label>
             <input type="text" id="quiz-title-input" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: اختبار تاريخي">
+
+            <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 md:space-x-reverse mt-4">
+                <div class="w-full md:w-1/2">
+                    <label for="subject-name-input" class="block text-lg font-medium text-gray-700">اسم المقرر:</label>
+                    <input type="text" id="subject-name-input" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: مبادئ البرمجة">
+                </div>
+                <div class="w-full md:w-1/2">
+                    <label for="subject-code-input" class="block text-lg font-medium text-gray-700">رمز المقرر:</label>
+                    <input type="text" id="subject-code-input" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: CS101">
+                </div>
+            </div>
         </div>
 
         <!-- قائمة الأسئلة -->
@@ -136,17 +147,6 @@
 
                 <div id="q-${questionCounter}-options-container" class="options-container space-y-4 mt-4">
                     <!-- خيارات السؤال سيتم إضافتها هنا -->
-                    <div class="flex flex-col gap-2">
-                        <label for="q-${questionCounter}-choice-0" class="block text-sm font-medium text-gray-700">خيار الإجابة:</label>
-                        <input type="text" id="q-${questionCounter}-choice-0" class="choice-text w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="خيار 1">
-                        
-                        <label for="q-${questionCounter}-answer-mcq" class="block text-sm font-medium text-gray-700">الإجابة الصحيحة:</label>
-                        <input type="text" id="q-${questionCounter}-answer-mcq" class="answer-mcq w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="الإجابة الصحيحة">
-                    </div>
-
-                    <button class="add-choice-btn mt-2 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg text-sm hover:bg-gray-300 transition-colors duration-200">
-                        إضافة خيار إجابة
-                    </button>
                 </div>
             `;
             questionsContainer.appendChild(questionBlock);
@@ -160,22 +160,25 @@
 
             // مستمع للتحكم في عرض خيارات الإجابة
             const questionTypeSelect = questionBlock.querySelector('.question-type');
+            const optionsContainer = questionBlock.querySelector('.options-container');
+
             questionTypeSelect.addEventListener('change', (e) => {
-                const optionsContainer = questionBlock.querySelector('.options-container');
                 if (e.target.value === 'mcq') {
                     optionsContainer.innerHTML = `
-                        <div class="flex flex-col gap-2 choice-group">
-                            <label for="q-${questionId}-choice-0" class="block text-sm font-medium text-gray-700">خيار الإجابة:</label>
-                            <div class="flex items-center gap-2">
+                        <div id="q-${questionId}-mcq-choices" class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">خيارات الإجابة:</label>
+                            <div class="flex items-center gap-2 choice-group">
+                                <input type="radio" id="q-${questionId}-answer-0" name="q-${questionId}-answer" class="text-blue-600 focus:ring-blue-500 h-4 w-4" value="0" checked>
+                                <label for="q-${questionId}-answer-0" class="sr-only">الإجابة الصحيحة</label>
                                 <input type="text" id="q-${questionId}-choice-0" class="choice-text w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="خيار 1">
-                                <button class="remove-choice-btn text-red-500 hover:text-red-700 transition-colors hidden">حذف</button>
+                                <button class="remove-choice-btn text-red-500 hover:text-red-700 transition-colors hidden" type="button" title="حذف الخيار">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
-
-                        <label for="q-${questionId}-answer-mcq" class="block text-sm font-medium text-gray-700 mt-4">الإجابة الصحيحة:</label>
-                        <input type="text" id="q-${questionId}-answer-mcq" class="answer-mcq w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="الإجابة الصحيحة">
-                        
-                        <button class="add-choice-btn mt-2 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg text-sm hover:bg-gray-300 transition-colors duration-200">
+                        <button class="add-choice-btn mt-2 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg text-sm hover:bg-gray-300 transition-colors duration-200" type="button">
                             إضافة خيار إجابة
                         </button>
                     `;
@@ -190,42 +193,84 @@
             });
 
             // إعداد مستمعي الأحداث لخيارات الاختيار من متعدد
-            setupChoiceEventListeners(questionBlock);
+            const initialType = questionTypeSelect.value;
+            if (initialType === 'mcq') {
+                optionsContainer.innerHTML = `
+                    <div id="q-${questionId}-mcq-choices" class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">خيارات الإجابة:</label>
+                        <div class="flex items-center gap-2 choice-group">
+                            <input type="radio" id="q-${questionId}-answer-0" name="q-${questionId}-answer" class="text-blue-600 focus:ring-blue-500 h-4 w-4" value="0" checked>
+                            <label for="q-${questionId}-answer-0" class="sr-only">الإجابة الصحيحة</label>
+                            <input type="text" id="q-${questionId}-choice-0" class="choice-text w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="خيار 1">
+                            <button class="remove-choice-btn text-red-500 hover:text-red-700 transition-colors hidden" type="button" title="حذف الخيار">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="add-choice-btn mt-2 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg text-sm hover:bg-gray-300 transition-colors duration-200" type="button">
+                        إضافة خيار إجابة
+                    </button>
+                `;
+                setupChoiceEventListeners(questionBlock);
+            } else if (initialType === 'essay') {
+                 optionsContainer.innerHTML = `
+                    <label for="q-${questionId}-answer-essay" class="block text-sm font-medium text-gray-700">الإجابة النموذجية:</label>
+                    <textarea id="q-${questionId}-answer-essay" class="answer-essay w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="4" placeholder="اكتب الإجابة النموذجية هنا..."></textarea>
+                `;
+            }
+
         }
 
         function setupChoiceEventListeners(questionBlock) {
             const optionsContainer = questionBlock.querySelector('.options-container');
-            let choiceCounter = 1;
+            const choicesDiv = optionsContainer.querySelector('[id$="-mcq-choices"]');
 
             // مستمع لزر إضافة خيار
             const addChoiceBtn = optionsContainer.querySelector('.add-choice-btn');
             if (addChoiceBtn) {
                 addChoiceBtn.addEventListener('click', () => {
+                    const choiceGroups = choicesDiv.querySelectorAll('.choice-group');
+                    const choiceCounter = choiceGroups.length;
+
                     const newChoiceDiv = document.createElement('div');
-                    newChoiceDiv.className = 'flex flex-col gap-2 choice-group';
+                    newChoiceDiv.className = 'flex items-center gap-2 choice-group';
                     newChoiceDiv.innerHTML = `
-                        <label for="q-${questionBlock.id.split('-')[1]}-choice-${choiceCounter}" class="block text-sm font-medium text-gray-700">خيار الإجابة:</label>
-                        <div class="flex items-center gap-2">
-                            <input type="text" id="q-${questionBlock.id.split('-')[1]}-choice-${choiceCounter}" class="choice-text w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="خيار ${choiceCounter + 1}">
-                            <button class="remove-choice-btn text-red-500 hover:text-red-700 transition-colors">حذف</button>
-                        </div>
+                        <input type="radio" id="q-${questionBlock.id.split('-')[1]}-answer-${choiceCounter}" name="q-${questionBlock.id.split('-')[1]}-answer" class="text-blue-600 focus:ring-blue-500 h-4 w-4" value="${choiceCounter}">
+                        <label for="q-${questionBlock.id.split('-')[1]}-answer-${choiceCounter}" class="sr-only">الإجابة الصحيحة</label>
+                        <input type="text" id="q-${questionBlock.id.split('-')[1]}-choice-${choiceCounter}" class="choice-text w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="خيار ${choiceCounter + 1}">
+                        <button class="remove-choice-btn text-red-500 hover:text-red-700 transition-colors" type="button" title="حذف الخيار">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
                     `;
-                    optionsContainer.insertBefore(newChoiceDiv, addChoiceBtn);
-                    choiceCounter++;
-                    setupRemoveChoiceListeners(questionBlock);
+                    choicesDiv.appendChild(newChoiceDiv);
                 });
             }
 
-            setupRemoveChoiceListeners(questionBlock);
-        }
-
-        function setupRemoveChoiceListeners(questionBlock) {
-            questionBlock.querySelectorAll('.remove-choice-btn').forEach(btn => {
-                btn.onclick = () => {
-                    btn.closest('.choice-group').remove();
-                };
+            // مستمع لحذف الخيار
+            choicesDiv.addEventListener('click', (e) => {
+                const removeBtn = e.target.closest('.remove-choice-btn');
+                if (removeBtn) {
+                    const choiceGroup = removeBtn.closest('.choice-group');
+                    if (choicesDiv.querySelectorAll('.choice-group').length > 1) {
+                        choiceGroup.remove();
+                        // إعادة تسمية قيم الراديو لتجنب الأخطاء
+                        choicesDiv.querySelectorAll('.choice-group').forEach((group, index) => {
+                            const radioBtn = group.querySelector('input[type="radio"]');
+                            radioBtn.id = `q-${questionBlock.id.split('-')[1]}-answer-${index}`;
+                            radioBtn.value = index;
+                            group.querySelector('label').htmlFor = `q-${questionBlock.id.split('-')[1]}-answer-${index}`;
+                        });
+                    } else {
+                        showMessage('يجب أن يحتوي السؤال على خيار واحد على الأقل.');
+                    }
+                }
             });
         }
+
 
         // مستمع أحداث رئيسي على حاوية الأسئلة للتعامل مع الأزرار الديناميكية
         document.getElementById('questions-container').addEventListener('click', (e) => {
@@ -253,6 +298,8 @@
         // عند النقر على زر "توليد كود YAML"
         document.getElementById('generate-yaml-btn').addEventListener('click', () => {
             const quizTitle = document.getElementById('quiz-title-input').value.trim();
+            const subjectName = document.getElementById('subject-name-input').value.trim();
+            const subjectCode = document.getElementById('subject-code-input').value.trim();
             const questions = [];
             const questionsContainer = document.getElementById('questions-container');
 
@@ -260,6 +307,16 @@
                 showMessage('يرجى إدخال عنوان للاختبار.');
                 return;
             }
+            if (!subjectName) {
+                showMessage('يرجى إدخال اسم المقرر.');
+                return;
+            }
+            if (!subjectCode) {
+                showMessage('يرجى إدخال رمز المقرر.');
+                return;
+            }
+            
+            let hasError = false;
 
             questionsContainer.querySelectorAll('.question-block').forEach(qBlock => {
                 const questionText = qBlock.querySelector('.question-text').value.trim();
@@ -268,7 +325,7 @@
                 
                 if (!questionText || isNaN(questionPoints)) {
                     showMessage('يرجى ملء جميع حقول الأسئلة بشكل صحيح.');
-                    questions.length = 0; // مسح الأسئلة إذا كان هناك خطأ
+                    hasError = true;
                     return;
                 }
 
@@ -279,26 +336,31 @@
                 };
 
                 if (questionType === 'mcq') {
+                    const choicesInputs = qBlock.querySelectorAll('.choice-text');
                     const choices = [];
-                    qBlock.querySelectorAll('.choice-text').forEach(choiceInput => {
+                    choicesInputs.forEach(choiceInput => {
                         const choiceText = choiceInput.value.trim();
                         if (choiceText) {
                             choices.push(choiceText);
                         }
                     });
-                    const answer = qBlock.querySelector('.answer-mcq').value.trim();
-                    if (choices.length === 0 || !answer) {
+                    
+                    const checkedRadio = qBlock.querySelector('input[type="radio"]:checked');
+                    if (choices.length === 0 || !checkedRadio) {
                         showMessage('يرجى إضافة خيارات الإجابة وتحديد الإجابة الصحيحة لأسئلة الاختيار من متعدد.');
-                        questions.length = 0;
+                        hasError = true;
                         return;
                     }
+                    
+                    const answerIndex = parseInt(checkedRadio.value, 10);
                     newQuestion.choices = choices;
-                    newQuestion.answer = answer;
+                    newQuestion.answer = choices[answerIndex];
+
                 } else if (questionType === 'essay') {
                     const answer = qBlock.querySelector('.answer-essay').value.trim();
                     if (!answer) {
                         showMessage('يرجى كتابة الإجابة النموذجية للسؤال المقالي.');
-                        questions.length = 0;
+                        hasError = true;
                         return;
                     }
                     newQuestion.answer = answer;
@@ -306,11 +368,11 @@
                 questions.push(newQuestion);
             });
 
+            if (hasError) {
+                return;
+            }
+
             if (questions.length === 0) {
-                if (questionsContainer.children.length > 0) {
-                     // The error message was already displayed from inside the loop
-                     return;
-                }
                 showMessage('يرجى إضافة سؤال واحد على الأقل.');
                 return;
             }
@@ -318,6 +380,8 @@
             const quizObject = [
                 {
                     title: quizTitle,
+                    'subject-name': subjectName,
+                    'subject-code': subjectCode,
                     questions: questions
                 }
             ];
