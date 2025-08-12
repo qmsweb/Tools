@@ -142,10 +142,10 @@
 
                 <label for="i-${itemCounter}-type" class="block text-sm font-medium text-gray-700">نوع العنصر:</label>
                 <select id="i-${itemCounter}-type" class="item-type w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="documents">مستندات</option>
-                    <option value="videos">فيديوهات</option>
-                    <option value="quizzes">اختبارات</option>
-                    <option value="resources">موارد</option>
+                    <option value="documents">مستند</option>
+                    <option value="videos">فيدو</option>
+                    <option value="quizzes">اختبار تفاعلي</option>
+                    <option value="resources">ملاحظة</option>
                 </select>
 
                 <div id="i-${itemCounter}-type-fields" class="type-fields space-y-4 mt-4">
@@ -192,8 +192,6 @@
                     typeFieldsContainer.innerHTML = `
                         <label for="i-${itemId}-preview-url" class="block text-sm font-medium text-gray-700">رابط الاختبار:</label>
                         <input type="text" id="i-${itemId}-preview-url" class="item-preview-url w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: صثص">
-                        <label for="i-${itemId}-time-ms" class="block text-sm font-medium text-gray-700">وقت الإنشاء (بالمللي ثانية):</label>
-                        <input type="text" id="i-${itemId}-time-ms" class="item-time-ms w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: 1754955273178">
                     `;
                 } else if (type === 'resources') {
                     // لا يوجد حقول إضافية
@@ -268,10 +266,11 @@
                     newItem['preview_url'] = previewUrl;
                 } else if (itemType === 'quizzes') {
                     const previewUrl = iBlock.querySelector('.item-preview-url').value.trim();
-                    const timeMs = iBlock.querySelector('.item-time-ms').value.trim();
                     newItem['preview_url'] = previewUrl;
-                    newItem['time-ms'] = timeMs;
                 }
+                
+                // إضافة حقل وقت الإنشاء التلقائي لجميع العناصر
+                newItem['time-ms'] = new Date().getTime().toString();
                 
                 items.push(newItem);
             });
@@ -348,7 +347,6 @@
                             newItemBlock.querySelector(`#i-${itemId}-preview-url`).value = item.preview_url || '';
                         } else if (item.type === 'quizzes') {
                             newItemBlock.querySelector(`#i-${itemId}-preview-url`).value = item.preview_url || '';
-                            newItemBlock.querySelector(`#i-${itemId}-time-ms`).value = item['time-ms'] || '';
                         }
                     });
                 }
