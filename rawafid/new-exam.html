@@ -78,6 +78,15 @@
         // متغير لعداد الأسئلة
         let questionCounter = 0;
 
+        // دالة لتحديث أرقام الأسئلة بعد كل عملية حذف أو نقل
+        function updateQuestionNumbers() {
+            const questions = document.querySelectorAll('.question-block');
+            questions.forEach((qBlock, index) => {
+                const questionNumber = index + 1;
+                qBlock.querySelector('h3').textContent = `سؤال جديد #${questionNumber}`;
+            });
+        }
+
         // عند النقر على زر "إضافة سؤال جديد"
         document.getElementById('add-question-btn').addEventListener('click', () => {
             questionCounter++;
@@ -85,11 +94,27 @@
 
             const questionBlock = document.createElement('div');
             questionBlock.id = `question-${questionCounter}`;
-            questionBlock.className = 'bg-gray-50 p-6 rounded-xl shadow-inner border border-gray-200 space-y-4';
+            questionBlock.className = 'question-block bg-gray-50 p-6 rounded-xl shadow-inner border border-gray-200 space-y-4';
             questionBlock.innerHTML = `
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-bold text-gray-800">سؤال جديد #${questionCounter}</h3>
-                    <button class="remove-question-btn text-red-500 hover:text-red-700 transition-colors" data-question-id="${questionCounter}">حذف السؤال</button>
+                    <div class="flex space-x-2 space-x-reverse">
+                        <button class="move-up-btn text-gray-500 hover:text-gray-700 transition-colors" title="نقل لأعلى">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                            </svg>
+                        </button>
+                        <button class="move-down-btn text-gray-500 hover:text-gray-700 transition-colors" title="نقل لأسفل">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <button class="remove-question-btn text-red-500 hover:text-red-700 transition-colors" title="حذف السؤال">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 
                 <label for="q-${questionCounter}-text" class="block text-sm font-medium text-gray-700">نص السؤال:</label>
@@ -125,8 +150,7 @@
                 </div>
             `;
             questionsContainer.appendChild(questionBlock);
-
-            // إضافة مستمعي الأحداث للعناصر الجديدة
+            updateQuestionNumbers();
             setupEventListeners(questionBlock);
         });
 
@@ -163,11 +187,6 @@
                         <textarea id="q-${questionId}-answer-essay" class="answer-essay w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="4" placeholder="اكتب الإجابة النموذجية هنا..."></textarea>
                     `;
                 }
-            });
-
-            // مستمع لزر حذف السؤال
-            questionBlock.querySelector('.remove-question-btn').addEventListener('click', () => {
-                questionBlock.remove();
             });
 
             // إعداد مستمعي الأحداث لخيارات الاختيار من متعدد
@@ -208,6 +227,29 @@
             });
         }
 
+        // مستمع أحداث رئيسي على حاوية الأسئلة للتعامل مع الأزرار الديناميكية
+        document.getElementById('questions-container').addEventListener('click', (e) => {
+            const questionBlock = e.target.closest('.question-block');
+            if (!questionBlock) return;
+
+            if (e.target.closest('.remove-question-btn')) {
+                questionBlock.remove();
+                updateQuestionNumbers();
+            } else if (e.target.closest('.move-up-btn')) {
+                const prevQuestion = questionBlock.previousElementSibling;
+                if (prevQuestion) {
+                    questionsContainer.insertBefore(questionBlock, prevQuestion);
+                    updateQuestionNumbers();
+                }
+            } else if (e.target.closest('.move-down-btn')) {
+                const nextQuestion = questionBlock.nextElementSibling;
+                if (nextQuestion) {
+                    questionsContainer.insertBefore(nextQuestion, questionBlock);
+                    updateQuestionNumbers();
+                }
+            }
+        });
+
         // عند النقر على زر "توليد كود YAML"
         document.getElementById('generate-yaml-btn').addEventListener('click', () => {
             const quizTitle = document.getElementById('quiz-title-input').value.trim();
@@ -219,7 +261,7 @@
                 return;
             }
 
-            questionsContainer.querySelectorAll('.bg-gray-50').forEach(qBlock => {
+            questionsContainer.querySelectorAll('.question-block').forEach(qBlock => {
                 const questionText = qBlock.querySelector('.question-text').value.trim();
                 const questionType = qBlock.querySelector('.question-type').value;
                 const questionPoints = parseInt(qBlock.querySelector('.question-points').value, 10);
