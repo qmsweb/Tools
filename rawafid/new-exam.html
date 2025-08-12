@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مولد YAML للاختبارات</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;700&display=swap');
+        body {
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            direction: rtl;
+        }
+    </style>
+    <!-- js-yaml CDN for parsing/dumping YAML -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-5xl space-y-6">
+        <h1 class="text-3xl font-bold text-center text-gray-800">مولد YAML للاختبارات</h1>
+        
+        <!-- معلومات الاختبار -->
+        <div class="space-y-4 bg-gray-50 p-6 rounded-xl shadow-inner">
+            <label for="quiz-title-input" class="block text-lg font-medium text-gray-700">عنوان الاختبار:</label>
+            <input type="text" id="quiz-title-input" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: اختبار تاريخي">
+        </div>
+
+        <!-- قائمة الأسئلة -->
+        <div id="questions-container" class="space-y-6">
+            <!-- سيتم إضافة الأسئلة هنا بواسطة JavaScript -->
+        </div>
+
+        <!-- زر إضافة سؤال -->
+        <button id="add-question-btn" class="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-green-700 transition-colors duration-200">
+            إضافة سؤال جديد
+        </button>
+
+        <!-- زر توليد YAML -->
+        <button id="generate-yaml-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-colors duration-200">
+            توليد كود YAML
+        </button>
+
+        <!-- منطقة عرض YAML -->
+        <div id="yaml-output-section" class="space-y-4 hidden">
+            <h2 class="text-xl font-bold text-gray-800">كود YAML الناتج:</h2>
+            <div class="relative">
+                <textarea id="yaml-output" readonly rows="15" class="w-full p-4 border border-gray-300 rounded-lg bg-gray-50 font-mono text-sm"></textarea>
+                <button id="copy-yaml-btn" class="absolute top-3 right-3 bg-gray-200 text-gray-800 py-1 px-3 rounded-lg text-sm hover:bg-gray-300 transition-colors duration-200">
+                    نسخ
+                </button>
+            </div>
+        </div>
+
+        <!-- مربع الرسائل المخصص -->
+        <div id="message-box" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-xl shadow-2xl border border-gray-200 max-w-sm w-full text-center hidden">
+            <p id="message-text" class="text-gray-800 font-medium"></p>
+            <button id="message-close-btn" class="mt-4 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors duration-200">
+                إغلاق
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // دالة لعرض رسائل مخصصة بدلاً من alert
+        function showMessage(text) {
+            const messageBox = document.getElementById('message-box');
+            const messageText = document.getElementById('message-text');
+            messageText.textContent = text;
+            messageBox.classList.remove('hidden');
+        }
+
+        document.getElementById('message-close-btn').addEventListener('click', () => {
+            document.getElementById('message-box').classList.add('hidden');
+        });
+        
+        // متغير لعداد الأسئلة
+        let questionCounter = 0;
+
+        // عند النقر على زر "إضافة سؤال جديد"
+        document.getElementById('add-question-btn').addEventListener('click', () => {
+            questionCounter++;
+            const questionsContainer = document.getElementById('questions-container');
+
+            const questionBlock = document.createElement('div');
+            questionBlock.id = `question-${questionCounter}`;
+            questionBlock.className = 'bg-gray-50 p-6 rounded-xl shadow-inner border border-gray-200 space-y-4';
+            questionBlock.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">سؤال جديد #${questionCounter}</h3>
+                    <button class="remove-question-btn text-red-500 hover:text-red-700 transition-colors" data-question-id="${questionCounter}">حذف السؤال</button>
+                </div>
+                
+                <label for="q-${questionCounter}-text" class="block text-sm font-medium text-gray-700">نص السؤال:</label>
+                <input type="text" id="q-${questionCounter}-text" class="question-text w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: ما هو تاريخ تأسيس الدولة السعودية الثالثة؟">
+                
+                <div class="flex space-x-4 space-x-reverse">
+                    <div class="w-1/2">
+                        <label for="q-${questionCounter}-type" class="block text-sm font-medium text-gray-700">نوع السؤال:</label>
+                        <select id="q-${questionCounter}-type" class="question-type w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="mcq">اختيار من متعدد (MCQ)</option>
+                            <option value="essay">مقالي</option>
+                        </select>
+                    </div>
+                    <div class="w-1/2">
+                        <label for="q-${questionCounter}-points" class="block text-sm font-medium text-gray-700">النقاط:</label>
+                        <input type="number" id="q-${questionCounter}-points" class="question-points w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" value="1" min="1">
+                    </div>
+                </div>
+
+                <div id="q-${questionCounter}-options-container" class="options-container space-y-4 mt-4">
+                    <!-- خيارات السؤال سيتم إضافتها هنا -->
+                    <div class="flex flex-col gap-2">
+                        <label for="q-${questionCounter}-choice-0" class="block text-sm font-medium text-gray-700">خيار الإجابة:</label>
+                        <input type="text" id="q-${questionCounter}-choice-0" class="choice-text w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="خيار 1">
+                        
+                        <label for="q-${questionCounter}-answer-mcq" class="block text-sm font-medium text-gray-700">الإجابة الصحيحة:</label>
+                        <input type="text" id="q-${questionCounter}-answer-mcq" class="answer-mcq w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="الإجابة الصحيحة">
+                    </div>
+
+                    <button class="add-choice-btn mt-2 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg text-sm hover:bg-gray-300 transition-colors duration-200">
+                        إضافة خيار إجابة
+                    </button>
+                </div>
+            `;
+            questionsContainer.appendChild(questionBlock);
+
+            // إضافة مستمعي الأحداث للعناصر الجديدة
+            setupEventListeners(questionBlock);
+        });
+
+        // دالة لإعداد مستمعي الأحداث لكل سؤال
+        function setupEventListeners(questionBlock) {
+            const questionId = questionBlock.id.split('-')[1];
+
+            // مستمع للتحكم في عرض خيارات الإجابة
+            const questionTypeSelect = questionBlock.querySelector('.question-type');
+            questionTypeSelect.addEventListener('change', (e) => {
+                const optionsContainer = questionBlock.querySelector('.options-container');
+                if (e.target.value === 'mcq') {
+                    optionsContainer.innerHTML = `
+                        <div class="flex flex-col gap-2 choice-group">
+                            <label for="q-${questionId}-choice-0" class="block text-sm font-medium text-gray-700">خيار الإجابة:</label>
+                            <div class="flex items-center gap-2">
+                                <input type="text" id="q-${questionId}-choice-0" class="choice-text w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="خيار 1">
+                                <button class="remove-choice-btn text-red-500 hover:text-red-700 transition-colors hidden">حذف</button>
+                            </div>
+                        </div>
+
+                        <label for="q-${questionId}-answer-mcq" class="block text-sm font-medium text-gray-700 mt-4">الإجابة الصحيحة:</label>
+                        <input type="text" id="q-${questionId}-answer-mcq" class="answer-mcq w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="الإجابة الصحيحة">
+                        
+                        <button class="add-choice-btn mt-2 bg-gray-200 text-gray-800 py-2 px-4 rounded-lg text-sm hover:bg-gray-300 transition-colors duration-200">
+                            إضافة خيار إجابة
+                        </button>
+                    `;
+                    // إعادة إعداد مستمعي الأحداث للعناصر الجديدة
+                    setupChoiceEventListeners(questionBlock);
+                } else if (e.target.value === 'essay') {
+                    optionsContainer.innerHTML = `
+                        <label for="q-${questionId}-answer-essay" class="block text-sm font-medium text-gray-700">الإجابة النموذجية:</label>
+                        <textarea id="q-${questionId}-answer-essay" class="answer-essay w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="4" placeholder="اكتب الإجابة النموذجية هنا..."></textarea>
+                    `;
+                }
+            });
+
+            // مستمع لزر حذف السؤال
+            questionBlock.querySelector('.remove-question-btn').addEventListener('click', () => {
+                questionBlock.remove();
+            });
+
+            // إعداد مستمعي الأحداث لخيارات الاختيار من متعدد
+            setupChoiceEventListeners(questionBlock);
+        }
+
+        function setupChoiceEventListeners(questionBlock) {
+            const optionsContainer = questionBlock.querySelector('.options-container');
+            let choiceCounter = 1;
+
+            // مستمع لزر إضافة خيار
+            const addChoiceBtn = optionsContainer.querySelector('.add-choice-btn');
+            if (addChoiceBtn) {
+                addChoiceBtn.addEventListener('click', () => {
+                    const newChoiceDiv = document.createElement('div');
+                    newChoiceDiv.className = 'flex flex-col gap-2 choice-group';
+                    newChoiceDiv.innerHTML = `
+                        <label for="q-${questionBlock.id.split('-')[1]}-choice-${choiceCounter}" class="block text-sm font-medium text-gray-700">خيار الإجابة:</label>
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="q-${questionBlock.id.split('-')[1]}-choice-${choiceCounter}" class="choice-text w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="خيار ${choiceCounter + 1}">
+                            <button class="remove-choice-btn text-red-500 hover:text-red-700 transition-colors">حذف</button>
+                        </div>
+                    `;
+                    optionsContainer.insertBefore(newChoiceDiv, addChoiceBtn);
+                    choiceCounter++;
+                    setupRemoveChoiceListeners(questionBlock);
+                });
+            }
+
+            setupRemoveChoiceListeners(questionBlock);
+        }
+
+        function setupRemoveChoiceListeners(questionBlock) {
+            questionBlock.querySelectorAll('.remove-choice-btn').forEach(btn => {
+                btn.onclick = () => {
+                    btn.closest('.choice-group').remove();
+                };
+            });
+        }
+
+        // عند النقر على زر "توليد كود YAML"
+        document.getElementById('generate-yaml-btn').addEventListener('click', () => {
+            const quizTitle = document.getElementById('quiz-title-input').value.trim();
+            const questions = [];
+            const questionsContainer = document.getElementById('questions-container');
+
+            if (!quizTitle) {
+                showMessage('يرجى إدخال عنوان للاختبار.');
+                return;
+            }
+
+            questionsContainer.querySelectorAll('.bg-gray-50').forEach(qBlock => {
+                const questionText = qBlock.querySelector('.question-text').value.trim();
+                const questionType = qBlock.querySelector('.question-type').value;
+                const questionPoints = parseInt(qBlock.querySelector('.question-points').value, 10);
+                
+                if (!questionText || isNaN(questionPoints)) {
+                    showMessage('يرجى ملء جميع حقول الأسئلة بشكل صحيح.');
+                    questions.length = 0; // مسح الأسئلة إذا كان هناك خطأ
+                    return;
+                }
+
+                const newQuestion = {
+                    question: questionText,
+                    type: questionType,
+                    points: questionPoints
+                };
+
+                if (questionType === 'mcq') {
+                    const choices = [];
+                    qBlock.querySelectorAll('.choice-text').forEach(choiceInput => {
+                        const choiceText = choiceInput.value.trim();
+                        if (choiceText) {
+                            choices.push(choiceText);
+                        }
+                    });
+                    const answer = qBlock.querySelector('.answer-mcq').value.trim();
+                    if (choices.length === 0 || !answer) {
+                        showMessage('يرجى إضافة خيارات الإجابة وتحديد الإجابة الصحيحة لأسئلة الاختيار من متعدد.');
+                        questions.length = 0;
+                        return;
+                    }
+                    newQuestion.choices = choices;
+                    newQuestion.answer = answer;
+                } else if (questionType === 'essay') {
+                    const answer = qBlock.querySelector('.answer-essay').value.trim();
+                    if (!answer) {
+                        showMessage('يرجى كتابة الإجابة النموذجية للسؤال المقالي.');
+                        questions.length = 0;
+                        return;
+                    }
+                    newQuestion.answer = answer;
+                }
+                questions.push(newQuestion);
+            });
+
+            if (questions.length === 0) {
+                if (questionsContainer.children.length > 0) {
+                     // The error message was already displayed from inside the loop
+                     return;
+                }
+                showMessage('يرجى إضافة سؤال واحد على الأقل.');
+                return;
+            }
+
+            const quizObject = [
+                {
+                    title: quizTitle,
+                    questions: questions
+                }
+            ];
+
+            // استخدام js-yaml لتحويل كائن JavaScript إلى YAML
+            const yamlString = jsyaml.dump(quizObject, {
+                indent: 2,
+                lineWidth: -1,
+                noRefs: true
+            });
+
+            document.getElementById('yaml-output').value = yamlString;
+            document.getElementById('yaml-output-section').classList.remove('hidden');
+        });
+
+        // عند النقر على زر "نسخ"
+        document.getElementById('copy-yaml-btn').addEventListener('click', () => {
+            const outputTextarea = document.getElementById('yaml-output');
+            outputTextarea.select();
+            outputTextarea.setSelectionRange(0, 99999); // لتحديد النص على الأجهزة المحمولة
+            try {
+                // استخدام execCommand لأن navigator.clipboard قد لا يعمل في iframe
+                document.execCommand('copy');
+                showMessage('تم نسخ الكود بنجاح!');
+            } catch (err) {
+                showMessage('فشل النسخ. يرجى النسخ يدوياً.');
+                console.error('Copy failed', err);
+            }
+        });
+
+        // إضافة سؤال افتراضي عند تحميل الصفحة
+        window.onload = function() {
+            document.getElementById('add-question-btn').click();
+        }
+    </script>
+</body>
+</html>
