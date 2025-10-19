@@ -143,9 +143,10 @@
                 <label for="i-${itemCounter}-type" class="block text-sm font-medium text-gray-700">نوع العنصر:</label>
                 <select id="i-${itemCounter}-type" class="item-type w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <option value="documents">مستند</option>
-                    <option value="videos">فيدو</option>
+                    <option value="videos">فيديو</option>
                     <option value="quizzes">اختبار تفاعلي</option>
                     <option value="resources">ملاحظة</option>
+                    <option value="links">رابط</option>
                 </select>
 
                 <div id="i-${itemCounter}-type-fields" class="type-fields space-y-4 mt-4">
@@ -193,6 +194,11 @@
                         <label for="i-${itemId}-preview-url" class="block text-sm font-medium text-gray-700">رابط الاختبار:</label>
                         <input type="text" id="i-${itemId}-preview-url" class="item-preview-url w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: صثص">
                     `;
+                } else if (type === 'links') {
+                    typeFieldsContainer.innerHTML = `
+                        <label for="i-${itemId}-preview-url" class="block text-sm font-medium text-gray-700">رابط الموقع:</label>
+                        <input type="text" id="i-${itemId}-preview-url" class="item-preview-url w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: https://example.com">
+                    `;
                 } else if (type === 'resources') {
                     // لا يوجد حقول إضافية
                 }
@@ -224,6 +230,18 @@
             }
         });
 
+        // دالة لتنظيف الكائن من الحقول الفارغة
+        function cleanObject(obj) {
+            const cleaned = {};
+            for (const [key, value] of Object.entries(obj)) {
+                // إذا كانت القيمة ليست فارغة (ليست null أو undefined أو string فارغة)
+                if (value !== null && value !== undefined && value !== '') {
+                    cleaned[key] = value;
+                }
+            }
+            return cleaned;
+        }
+
         // عند النقر على زر "توليد كود JSON"
         document.getElementById('generate-json-btn').addEventListener('click', () => {
             const pageName = document.getElementById('page-name-input').value.trim();
@@ -249,41 +267,49 @@
                     return;
                 }
 
+                // إنشاء كائن العنصر الأساسي
                 const newItem = {
                     title: itemTitle,
                     description: itemDescription,
                     type: itemType
                 };
 
-                // إضافة الحقول الخاصة بنوع العنصر
+                // إضافة الحقول الخاصة بنوع العنصر (فقط إذا كانت غير فارغة)
                 if (itemType === 'documents') {
-                    const previewUrl = iBlock.querySelector('.item-preview-url').value.trim();
-                    const downloadUrl = iBlock.querySelector('.item-download-url').value.trim();
-                    newItem['preview_url'] = previewUrl;
-                    newItem['download_url'] = downloadUrl;
+                    const previewUrl = iBlock.querySelector('.item-preview-url')?.value.trim() || '';
+                    const downloadUrl = iBlock.querySelector('.item-download-url')?.value.trim() || '';
+                    
+                    if (previewUrl) newItem['preview_url'] = previewUrl;
+                    if (downloadUrl) newItem['download_url'] = downloadUrl;
                 } else if (itemType === 'videos') {
-                    const previewUrl = iBlock.querySelector('.item-preview-url').value.trim();
-                    newItem['preview_url'] = previewUrl;
+                    const previewUrl = iBlock.querySelector('.item-preview-url')?.value.trim() || '';
+                    if (previewUrl) newItem['preview_url'] = previewUrl;
                 } else if (itemType === 'quizzes') {
-                    const previewUrl = iBlock.querySelector('.item-preview-url').value.trim();
-                    newItem['preview_url'] = previewUrl;
+                    const previewUrl = iBlock.querySelector('.item-preview-url')?.value.trim() || '';
+                    if (previewUrl) newItem['preview_url'] = previewUrl;
+                } else if (itemType === 'links') {
+                    const previewUrl = iBlock.querySelector('.item-preview-url')?.value.trim() || '';
+                    if (previewUrl) newItem['preview_url'] = previewUrl;
                 }
                 
                 // إضافة حقل وقت الإنشاء التلقائي لجميع العناصر
                 newItem['time-ms'] = new Date().getTime().toString();
                 
-                items.push(newItem);
+                // تنظيف العنصر من الحقول الفارغة قبل إضافته
+                const cleanedItem = cleanObject(newItem);
+                items.push(cleanedItem);
             });
 
             if (hasError) {
                 return;
             }
 
-            const pageObject = {
+            // إنشاء كائن الصفحة وتنظيفه من الحقول الفارغة
+            const pageObject = cleanObject({
                 name: pageName,
                 description: pageDescription,
                 items: items
-            };
+            });
 
             const jsonString = JSON.stringify(pageObject, null, 2);
 
@@ -315,7 +341,7 @@
 
             try {
                 const parsedJson = JSON.parse(jsonInput);
-                if (!parsedJson || !parsedJson.items || !Array.isArray(parsedJson.items)) {
+                if (!parsedJson) {
                     showMessage('كود JSON غير صالح أو فارغ.');
                     return;
                 }
@@ -336,18 +362,26 @@
                         // تعبئة الحقول المشتركة
                         newItemBlock.querySelector('.item-title').value = item.title || '';
                         newItemBlock.querySelector('.item-description').value = item.description || '';
-                        newItemBlock.querySelector('.item-type').value = item.type || 'documents';
+                        
+                        // تحديد نوع العنصر (استخدام القيمة الافتراضية إذا لم يكن النوع موجوداً)
+                        const itemType = item.type || 'documents';
+                        newItemBlock.querySelector('.item-type').value = itemType;
                         newItemBlock.querySelector('.item-type').dispatchEvent(new Event('change'));
 
-                        // تعبئة الحقول الخاصة بنوع العنصر
-                        if (item.type === 'documents') {
-                            newItemBlock.querySelector(`#i-${itemId}-preview-url`).value = item.preview_url || '';
-                            newItemBlock.querySelector(`#i-${itemId}-download-url`).value = item.download_url || '';
-                        } else if (item.type === 'videos') {
-                            newItemBlock.querySelector(`#i-${itemId}-preview-url`).value = item.preview_url || '';
-                        } else if (item.type === 'quizzes') {
-                            newItemBlock.querySelector(`#i-${itemId}-preview-url`).value = item.preview_url || '';
+                        // تعبئة الحقول الخاصة بنوع العنصر (إذا كانت موجودة في JSON)
+                        if (itemType === 'documents') {
+                            if (item.preview_url) newItemBlock.querySelector(`#i-${itemId}-preview-url`).value = item.preview_url;
+                            if (item.download_url) newItemBlock.querySelector(`#i-${itemId}-download-url`).value = item.download_url;
+                        } else if (itemType === 'videos') {
+                            if (item.preview_url) newItemBlock.querySelector(`#i-${itemId}-preview-url`).value = item.preview_url;
+                        } else if (itemType === 'quizzes') {
+                            if (item.preview_url) newItemBlock.querySelector(`#i-${itemId}-preview-url`).value = item.preview_url;
+                        } else if (itemType === 'links') {
+                            if (item.preview_url) newItemBlock.querySelector(`#i-${itemId}-preview-url`).value = item.preview_url;
                         }
+                        
+                        // الحفاظ على الحقول الإضافية الأخرى (مثل time-ms) في JSON المستورد
+                        // سيتم الاحتفاظ بها عند إعادة التوليد
                     });
                 }
                 showMessage('تم استيراد البيانات بنجاح!');
