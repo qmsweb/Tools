@@ -27,8 +27,9 @@
             <label for="page-description-input" class="block text-lg font-medium text-gray-700">وصف الصفحة:</label>
             <textarea id="page-description-input" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: هذه الصفحة مخصصة لعرض ملخصات كافة المقررات"></textarea>
             
-            <label for="page-url-input" class="block text-lg font-medium text-gray-700">رابط الصفحة:</label>
-            <input type="text" id="page-url-input" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: https://rawafid.jassim.one/c/EDUC431">
+            <label for="page-code-input" class="block text-lg font-medium text-gray-700">رمز المقرر:</label>
+            <input type="text" id="page-code-input" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: EDUC431">
+            <p class="text-sm text-gray-500">سيتم إنشاء الرابط تلقائياً بناءً على هذا الرمز</p>
         </div>
 
         <!-- استيراد كود JSON -->
@@ -250,7 +251,7 @@
         document.getElementById('generate-json-btn').addEventListener('click', () => {
             const pageName = document.getElementById('page-name-input').value.trim();
             const pageDescription = document.getElementById('page-description-input').value.trim();
-            const pageUrl = document.getElementById('page-url-input').value.trim();
+            const pageCode = document.getElementById('page-code-input').value.trim();
             const items = [];
             const itemsContainer = document.getElementById('items-container');
 
@@ -309,6 +310,9 @@
                 return;
             }
 
+            // إنشاء الرابط تلقائياً بناءً على الرمز
+            const pageUrl = pageCode ? `https://rawafid.jassim.one/c/${pageCode}` : '';
+
             // إنشاء كائن الصفحة وتنظيفه من الحقول الفارغة
             const pageObject = cleanObject({
                 name: pageName,
@@ -355,7 +359,14 @@
                 // تعبئة حقول معلومات الصفحة
                 document.getElementById('page-name-input').value = parsedJson.name || '';
                 document.getElementById('page-description-input').value = parsedJson.description || '';
-                document.getElementById('page-url-input').value = parsedJson.url || '';
+                
+                // استخراج الرمز من الرابط إذا كان موجوداً
+                let pageCode = '';
+                if (parsedJson.url) {
+                    const urlParts = parsedJson.url.split('/');
+                    pageCode = urlParts[urlParts.length - 1] || '';
+                }
+                document.getElementById('page-code-input').value = pageCode;
 
                 // مسح العناصر الحالية
                 clearAllItems();
