@@ -23,8 +23,12 @@
             <h2 class="text-xl font-bold text-gray-800">معلومات الصفحة الرئيسية</h2>
             <label for="page-name-input" class="block text-lg font-medium text-gray-700">عنوان الصفحة:</label>
             <input type="text" id="page-name-input" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: ملخصات شاملة">
+            
             <label for="page-description-input" class="block text-lg font-medium text-gray-700">وصف الصفحة:</label>
             <textarea id="page-description-input" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: هذه الصفحة مخصصة لعرض ملخصات كافة المقررات"></textarea>
+            
+            <label for="page-url-input" class="block text-lg font-medium text-gray-700">رابط الصفحة:</label>
+            <input type="text" id="page-url-input" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: https://rawafid.jassim.one/c/EDUC431">
         </div>
 
         <!-- استيراد كود JSON -->
@@ -246,6 +250,7 @@
         document.getElementById('generate-json-btn').addEventListener('click', () => {
             const pageName = document.getElementById('page-name-input').value.trim();
             const pageDescription = document.getElementById('page-description-input').value.trim();
+            const pageUrl = document.getElementById('page-url-input').value.trim();
             const items = [];
             const itemsContainer = document.getElementById('items-container');
 
@@ -308,6 +313,7 @@
             const pageObject = cleanObject({
                 name: pageName,
                 description: pageDescription,
+                url: pageUrl,
                 items: items
             });
 
@@ -349,6 +355,7 @@
                 // تعبئة حقول معلومات الصفحة
                 document.getElementById('page-name-input').value = parsedJson.name || '';
                 document.getElementById('page-description-input').value = parsedJson.description || '';
+                document.getElementById('page-url-input').value = parsedJson.url || '';
 
                 // مسح العناصر الحالية
                 clearAllItems();
