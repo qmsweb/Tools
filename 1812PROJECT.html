@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سرّي للغاية</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>مشروع علم الدلالة</h1>
+      <p>نسخة أولية (تجريبية)</p>
+    </header>
+
+    <div class="tool-box">
+      <label for="word-input">أدخل الكلمة:</label>
+      <input type="text" id="word-input" placeholder="مثلاً: سعيد، كبير، سيارة...">
+
+      <label for="relation-type">اختر نوع العلاقة:</label>
+      <select id="relation-type">
+        <option value="all">جميع العلاقات</option>
+        <option value="synonym">الترادف (مرادفات)</option>
+        <option value="antonym">التضاد (أضداد)</option>
+      </select>
+
+      <button id="analyze-btn">حلل الكلمة</button>
+    </div>
+
+    <div id="results-container" class="results-section"></div>
+
+    <footer>
+      <p>نسخة تجريبية وليست للنشر، فقط مجر استعراض للفكرة :)</p>
+    </footer>
+  </div>
+
+  <script>
+    const semanticData = {
+      "سعيد": {
+        synonym: ["فرح", "مسرور", "مبتهج"],
+        antonym: ["حزين", "كئيب", "بائس"]
+      },
+      "كبير": {
+        synonym: ["عظيم", "ضخم", "واسع"],
+        antonym: ["صغير", "ضئيل", "حقير"]
+      },
+      "بيت": {
+        synonym: ["منزل", "دار", "مسكن"],
+        antonym: ["شارع", "خارج"]
+      },
+      "طالب": {
+        synonym: ["دارس", "تلميذ", "متعلم"],
+        antonym: ["أستاذ", "معلم"]
+      },
+      "سيارة": {
+        synonym: ["مركبة", "عربة"],
+        antonym: ["دراجة", "مشي"]
+      },
+      "نور": {
+        synonym: ["ضياء", "إشراق", "سناء"],
+        antonym: ["ظلام", "عتمة", "ليل"]
+      }
+    };
+
+    const wordInput = document.getElementById("word-input");
+    const relationType = document.getElementById("relation-type");
+    const analyzeBtn = document.getElementById("analyze-btn");
+    const resultsContainer = document.getElementById("results-container");
+
+    function analyzeWord() {
+      const word = wordInput.value.trim();
+      const selectedRelation = relationType.value;
+      resultsContainer.innerHTML = "";
+
+      if (!semanticData[word]) {
+        resultsContainer.innerHTML = `
+          <div class="result-card" style="grid-column:1 / -1">
+            <h2 class="card-title">النتيجة</h2>
+            <p>الكلمة "${word}" غير موجودة في قاعدة البيانات.</p>
+          </div>`;
+        return;
+      }
+
+      if (selectedRelation === "all") {
+        displayRelation("synonym", semanticData[word].synonym);
+        displayRelation("antonym", semanticData[word].antonym);
+      } else {
+        displayRelation(selectedRelation, semanticData[word][selectedRelation]);
+      }
+    }
+
+    function displayRelation(type, words) {
+      let title = type === "synonym" ? "الترادف (مرادفات)" : "التضاد (أضداد)";
+      let desc = type === "synonym"
+        ? "كلمات مختلفة تدل على نفس المعنى"
+        : "كلمات تعبر عن معانٍ متقابلة";
+
+      const card = document.createElement("div");
+      card.className = "result-card";
+
+      let listHTML = words.map(w => `<li>${w}</li>`).join("");
+
+      card.innerHTML = `
+        <h2 class="card-title">${title}</h2>
+        <p>${desc}</p>
+        <ul class="word-list">${listHTML}</ul>
+      `;
+
+      resultsContainer.appendChild(card);
+    }
+
+    analyzeBtn.addEventListener("click", analyzeWord);
+    wordInput.addEventListener("keypress", e => {
+      if (e.key === "Enter") analyzeWord();
+    });
+
+    window.addEventListener("load", () => {
+      wordInput.value = "سعيد";
+      analyzeWord();
+    });
+  </script>
+</body>
+</html>
