@@ -1,0 +1,45 @@
+{
+  "name": "رد تلقائي بالعربية مع شرح TTS",
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Webhook - استقبال الرسالة",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "parameters": {
+        "path": "arabic-chat",
+        "methods": ["POST"]
+      }
+    },
+    {
+      "id": "2",
+      "name": "Function - توليد الرد",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [520, 300],
+      "parameters": {
+        "functionCode": "const msg = ($json.text || '').toLowerCase();\nlet reply = '';\n\nif (msg.includes('مرحبا') || msg.includes('السلام')) {\n  reply = 'وعليكم السلام ورحمة الله وبركاته! 👋 أنا مساعد n8n. هل ترغب أن أشرح لك طريقة تحويل النص إلى صوت مجانًا؟';\n} else if (msg.includes('نعم') || msg.includes('ايوا')) {\n  reply = 'يمكنك استخدام موقع مثل Google Translate أو TTSMP3 لتحويل النصوص العربية إلى صوت طبيعي مجانًا. فقط انسخ النص وألصقه هناك واضغط \"تحويل\".';\n} else {\n  reply = 'أهلًا بك! أرسل لي كلمة \"مرحبا\" أو \"السلام عليكم\" لبدء المحادثة بالعربية.';\n}\n\nreturn [{ json: { reply } }];"
+      }
+    },
+    {
+      "id": "3",
+      "name": "Respond - إرسال الرد",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [800, 300],
+      "parameters": {
+        "responseMode": "onReceived",
+        "responseData": "={{$json.reply}}"
+      }
+    }
+  ],
+  "connections": {
+    "Webhook - استقبال الرسالة": {
+      "main": [[{ "node": "Function - توليد الرد", "type": "main", "index": 0 }]]
+    },
+    "Function - توليد الرد": {
+      "main": [[{ "node": "Respond - إرسال الرد", "type": "main", "index": 0 }]]
+    }
+  }
+}
