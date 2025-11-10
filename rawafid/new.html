@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مولد JSON لبيانات المواد</title>
+    <title>تعديل بيانات المقرر</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -240,7 +240,8 @@
             const cleaned = {};
             for (const [key, value] of Object.entries(obj)) {
                 // إذا كانت القيمة ليست فارغة (ليست null أو undefined أو string فارغة)
-                if (value !== null && value !== undefined && value !== '') {
+                // مع استثناء لحقل description الذي نريد الاحتفاظ به حتى لو كان فارغاً
+                if (key === 'description' || (value !== null && value !== undefined && value !== '')) {
                     cleaned[key] = value;
                 }
             }
@@ -276,7 +277,7 @@
                 // إنشاء كائن العنصر الأساسي
                 const newItem = {
                     title: itemTitle,
-                    description: itemDescription,
+                    description: itemDescription, // سيتم الاحتفاظ بهذا الحقل حتى لو كان فارغاً
                     type: itemType
                 };
 
@@ -301,7 +302,7 @@
                 // إضافة حقل وقت الإنشاء التلقائي لجميع العناصر
                 newItem['time-ms'] = new Date().getTime().toString();
                 
-                // تنظيف العنصر من الحقول الفارغة قبل إضافته
+                // تنظيف العنصر من الحقول الفارغة قبل إضافته (مع استثناء حقل description)
                 const cleanedItem = cleanObject(newItem);
                 items.push(cleanedItem);
             });
@@ -316,7 +317,7 @@
             // إنشاء كائن الصفحة وتنظيفه من الحقول الفارغة
             const pageObject = cleanObject({
                 name: pageName,
-                description: pageDescription,
+                description: pageDescription, // سيتم الاحتفاظ بهذا الحقل حتى لو كان فارغاً
                 url: pageUrl,
                 items: items
             });
