@@ -153,6 +153,7 @@
                         <select id="q-${questionCounter}-type" class="question-type w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <option value="mcq">اختيار من متعدد (MCQ)</option>
                             <option value="essay">مقالي</option>
+                            <option value="instructions">تعليمات</option>
                         </select>
                     </div>
                     <div class="w-1/2">
@@ -233,6 +234,19 @@
                     optionsContainer.innerHTML = `
                         <label for="q-${questionId}-answer-essay" class="block text-sm font-medium text-gray-700">الإجابة النموذجية:</label>
                         <textarea id="q-${questionId}-answer-essay" class="answer-essay w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="4" placeholder="اكتب الإجابة النموذجية هنا..."></textarea>
+                    `;
+                } else if (e.target.value === 'instructions') {
+                    optionsContainer.innerHTML = `
+                        <div class="space-y-4">
+                            <div>
+                                <label for="q-${questionId}-main-title" class="block text-sm font-medium text-gray-700">العنوان الرئيسي:</label>
+                                <input type="text" id="q-${questionId}-main-title" class="instructions-main-title w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="مثال: تعليمات هامة">
+                            </div>
+                            <div>
+                                <label for="q-${questionId}-description" class="block text-sm font-medium text-gray-700">النص التعريفي:</label>
+                                <textarea id="q-${questionId}-description" class="instructions-description w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="3" placeholder="اكتب النص التعريفي هنا..."></textarea>
+                            </div>
+                        </div>
                     `;
                 }
             });
@@ -340,17 +354,37 @@
                 const questionType = qBlock.querySelector('.question-type').value;
                 const questionPoints = parseInt(qBlock.querySelector('.question-points').value, 10);
 
-                if (!questionText || isNaN(questionPoints)) {
-                    showMessage('يرجى ملء جميع حقول الأسئلة بشكل صحيح.');
-                    hasError = true;
-                    return;
+                // لا نتحقق من الحقول الإلزامية لنوع التعليمات
+                if (questionType !== 'instructions') {
+                    if (!questionText || isNaN(questionPoints)) {
+                        showMessage('يرجى ملء جميع حقول الأسئلة بشكل صحيح.');
+                        hasError = true;
+                        return;
+                    }
                 }
 
                 const newQuestion = {
-                    question: questionText,
-                    type: questionType,
-                    points: questionPoints
+                    type: questionType
                 };
+
+                if (questionType === 'instructions') {
+                    const mainTitle = qBlock.querySelector('.instructions-main-title')?.value.trim() || '';
+                    const description = qBlock.querySelector('.instructions-description')?.value.trim() || '';
+                    
+                    if (mainTitle) {
+                        newQuestion.mainTitle = mainTitle;
+                    }
+                    if (description) {
+                        newQuestion.description = description;
+                    }
+                    
+                    // إضافة السؤال إلى المصفوفة حتى لو كان فارغاً جزئياً
+                    questions.push(newQuestion);
+                    return; // نخرج مبكراً لأن التعليمات لا تحتاج للمزيد من المعالجة
+                } else {
+                    newQuestion.question = questionText;
+                    newQuestion.points = questionPoints;
+                }
 
                 if (questionType === 'mcq') {
                     const choicesInputs = qBlock.querySelectorAll('.choice-text');
@@ -465,6 +499,8 @@
                         newQuestionBlock.querySelector('.question-text').value = q.question || '';
                         newQuestionBlock.querySelector('.question-points').value = q.points || 1;
                         newQuestionBlock.querySelector('.question-type').value = q.type || 'mcq';
+                        
+                        // تشغيل حدث change لتحميل الواجهة المناسبة للنوع
                         newQuestionBlock.querySelector('.question-type').dispatchEvent(new Event('change'));
 
                         // تعبئة الحقول الخاصة بنوع السؤال
@@ -498,6 +534,9 @@
                             });
                         } else if (q.type === 'essay') {
                             newQuestionBlock.querySelector('.answer-essay').value = q.answer || '';
+                        } else if (q.type === 'instructions') {
+                            newQuestionBlock.querySelector('.instructions-main-title').value = q.mainTitle || '';
+                            newQuestionBlock.querySelector('.instructions-description').value = q.description || '';
                         }
                     });
                 }
