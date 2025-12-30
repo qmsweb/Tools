@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آلة حاسبة علمية</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .calculator {
+            background-color: #2c3e50;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            width: 320px;
+        }
+
+        .display {
+            background-color: #9ca68e; /* لون شاشة الآلات القديمة */
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: right;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 2em;
+            color: #000;
+            height: 40px;
+            overflow: hidden;
+            border: 2px solid #555;
+        }
+
+        .buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            padding: 15px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* تنسيق الأرقام */
+        .btn-num {
+            background-color: #34495e;
+        }
+        .btn-num:hover {
+            background-color: #46627f;
+        }
+
+        /* تنسيق العمليات */
+        .btn-op {
+            background-color: #e67e22;
+        }
+        .btn-op:hover {
+            background-color: #d35400;
+        }
+
+        /* تنسيق الأزرار الخاصة */
+        .btn-func {
+            background-color: #7f8c8d;
+            font-size: 1em;
+        }
+        
+        /* زر التحويل "المقلب" */
+        #convert-btn {
+            background-color: #e74c3c; /* لون مميز */
+            grid-column: span 1;
+        }
+        #convert-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .clear {
+            background-color: #c0392b;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <div class="display" id="screen">0</div>
+
+        <div class="buttons-grid">
+            <button class="btn-func clear" onclick="clearScreen()">AC</button>
+            <button class="btn-func">DEL</button>
+            <button class="btn-func">%</button>
+            <button class="btn-op">÷</button>
+
+            <button class="btn-num" onclick="addNumber('7')">7</button>
+            <button class="btn-num" onclick="addNumber('8')">8</button>
+            <button class="btn-num" onclick="addNumber('9')">9</button>
+            <button class="btn-op">×</button>
+
+            <button class="btn-num" onclick="addNumber('4')">4</button>
+            <button class="btn-num" onclick="addNumber('5')">5</button>
+            <button class="btn-num" onclick="addNumber('6')">6</button>
+            <button class="btn-op">-</button>
+
+            <button class="btn-num" onclick="addNumber('1')">1</button>
+            <button class="btn-num" onclick="addNumber('2')">2</button>
+            <button class="btn-num" onclick="addNumber('3')">3</button>
+            <button class="btn-op">+</button>
+
+            <button class="btn-num" onclick="addNumber('0')">0</button>
+            <button class="btn-num">.</button>
+            <button id="convert-btn" title="تحويل عشري/كسري">S⇔D</button>
+            <button class="btn-op">=</button>
+        </div>
+    </div>
+
+    <script>
+        const screen = document.getElementById('screen');
+        let currentInput = '';
+
+        // دالة لإضافة الأرقام للشاشة (لإيهام المستخدم أنها تعمل)
+        function addNumber(num) {
+            if (currentInput === '' && num === '0') return;
+            currentInput += num;
+            screen.innerText = currentInput;
+        }
+
+        // مسح الشاشة
+        function clearScreen() {
+            currentInput = '';
+            screen.innerText = '0';
+        }
+
+        // البرمجة الخاصة بزر التحويل (المقلب)
+        document.getElementById('convert-btn').addEventListener('click', function() {
+            // فتح الرابط في نافذة جديدة أو نفس النافذة
+            window.location.href = "https://youtube.com/shorts/e0GenhWUm1o";
+        });
+    </script>
+
+</body>
+</html>
