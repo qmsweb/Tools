@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title }}</title>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;700&display=swap');
+
+        /* 2. تنسيق الصفحة (CSS) مدمج هنا */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans Arabic', sans-serif; /* تطبيق الخط */
+            height: 100vh; /* ارتفاع كامل للشاشة */
+            overflow: hidden; /* منع التمرير للصفحة الخارجية */
+        }
+
+        /* الحاوية التي تحمل القسمين (الأزرق والأحمر) */
+        .dashboard-container {
+            display: flex;       /* تفعيل نظام المرونة */
+            height: 100vh;      /* ملء الشاشة */
+            width: 100%;
+            flex-direction: row; /* جعل العناصر بجانب بعضها */
+        }
+
+        /* المنطقة الزرقاء (القائمة الجانبية) */
+        .sidebar {
+            width: 280px;            /* عرض ثابت للقائمة */
+            background-color: #1e3a8a; /* اللون الأزرق */
+            color: white;
+            display: flex;
+            flex-direction: column;
+            padding: 40px 20px;
+            flex-shrink: 0;          /* منع القائمة من الانكماش */
+        }
+
+        .logo-area {
+            margin-bottom: 80px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            text-align: right;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .nav-links li a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: opacity 0.3s;
+            display: block;
+        }
+
+        .nav-links li a:hover { opacity: 0.8; }
+
+        /* المنطقة الحمراء (المحتوى المتغير) */
+        .main-content {
+            flex-grow: 1;             /* تأخذ كل المساحة المتبقية */
+            background-color: #ff3333; /* اللون الأحمر */
+            color: white;
+            display: flex;
+            align-items: center;      /* توسيط المحتوى عمودياً */
+            justify-content: center;  /* توسيط المحتوى أفقياً */
+            padding: 20px;
+            overflow-y: auto;         /* السماح بالتمرير هنا فقط */
+        }
+        
+        /* تنسيق الخط الكبير داخل المنطقة الحمراء */
+        .main-content h1 {
+            font-size: 4rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="logo-area">شعار (صورة)</div>
+            <ul class="nav-links">
+                <li><a href="/">الرئيسية</a></li>
+                <li><a href="/create-quiz">إنشاء اختبار</a></li>
+                <li><a href="/add-course">إضافة مقرر</a></li>
+                <li><a href="/add-cards">إضافة بطاقات</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            
+            {{ content }}
+            
+        </main>
+
+    </div>
+
+</body>
+</html>
