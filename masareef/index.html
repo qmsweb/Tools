@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المصاريف alfa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #1e1e22;
+            --card-bg: #36363c;
+            --text-white: #ffffff;
+            --text-gray: #b0b0b0;
+            --teal: #6db5bc;
+            --green: #59a659;
+            --red-badge: #df888e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-white);
+            display: flex;
+            justify-content: center;
+        }
+
+        /* حاوية التطبيق لمحاكاة شاشة الجوال */
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            background-color: var(--bg-color);
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 80px;
+        }
+
+        /* الهيدر (الشريط العلوي) */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header-icons {
+            font-size: 1.2rem;
+            color: var(--text-white);
+            cursor: pointer;
+        }
+
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .logo span {
+            font-weight: 400;
+            font-family: sans-serif;
+            font-size: 1.1rem;
+        }
+
+        /* إجمالي الصرف */
+        .total-spent {
+            text-align: left;
+            padding: 0 20px 15px;
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+
+        .total-spent span {
+            color: var(--teal);
+        }
+
+        /* أزرار الفلترة (التبويبات) */
+        .tabs {
+            display: flex;
+            padding: 0 20px;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .tab-teal {
+            background-color: var(--teal);
+            color: var(--text-white);
+        }
+
+        .tab-white {
+            background-color: var(--text-white);
+            color: #000;
+        }
+
+        .tab-dark {
+            background-color: var(--card-bg);
+            color: var(--text-gray);
+        }
+
+        /* بطاقة الرصيد */
+        .balance-card {
+            background-color: var(--card-bg);
+            margin: 0 20px 25px;
+            border-radius: 12px;
+            height: 110px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.2rem;
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        .currency-icon {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 25px;
+            height: 25px;
+            background-color: var(--green);
+            color: var(--card-bg);
+            border-radius: 50%;
+            font-size: 1.2rem;
+            margin-left: 8px;
+            font-family: sans-serif;
+            font-weight: bold;
+        }
+
+        /* قائمة المصاريف */
+        .expense-list {
+            padding: 0 20px;
+        }
+
+        .expense-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .item-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* تصميم الأيقونات المتنوعة */
+        .icon-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.4rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* أيقونة شعار التطبيق (المصاريف alfa) */
+        .icon-logo {
+            background-color: #ffffff;
+            color: #000;
+            flex-direction: column;
+            line-height: 1;
+        }
+        .icon-logo .txt-ar { font-size: 0.6rem; font-weight: bold; }
+        .icon-logo .txt-en { font-size: 0.5rem; font-family: sans-serif; }
+
+        /* ألوان خلفيات الأيقونات التقريبية من الصورة */
+        .bg-grocery { background: linear-gradient(135deg, #7c99d1, #5d428f); }
+        .bg-rent { background: linear-gradient(135deg, #a1c4fd, #c2e9fb); color: #4a90e2; }
+        .bg-shopping { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .bg-burger { background: linear-gradient(135deg, #f6d365, #fda085); }
+        .bg-dinner { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+
+        .item-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* شارة المبلغ السالب */
+        .item-amount {
+            background-color: var(--red-badge);
+            color: var(--text-white);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            direction: ltr; /* لضمان ظهور علامة السالب على اليسار */
+        }
+
+        /* الزر العائم (+) */
+        .fab {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 65px;
+            height: 65px;
+            background-color: var(--teal);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            color: var(--text-white);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <header>
+        <i class="fas fa-bars header-icons"></i>
+        <div class="logo">المصاريف <span>alfa</span></div>
+        <i class="fas fa-search header-icons"></i>
+    </header>
+
+    <div class="total-spent">
+        إجمالي ما تم صرفه اليوم: <span>0.0</span>
+    </div>
+
+    <div class="tabs">
+        <button class="tab tab-teal">
+            <i class="far fa-calendar-alt"></i>
+            المصاريف السابقة
+        </button>
+        <button class="tab tab-white">كل المصاريف</button>
+        <button class="tab tab-dark">اليوم</button>
+    </div>
+
+    <div class="balance-card">
+        <span class="currency-icon">a</span>
+        260.0
+    </div>
+
+    <div class="expense-list">
+        
+        <div class="expense-item">
+            <div class="item-right">
+                <div class="icon-circle bg-grocery"><i class="fas fa-utensils"></i></div>
+                <div class="item-title">الدكان</div>
+            </div>
+            <div class="item-amount">-1.500</div>
+        </div>
+
+        <div class="expense-item">
+            <div class="item-right">
+                <div class="icon-circle icon-logo">
+                    <span class="txt-ar">المصاريف</span>
+                    <span class="txt-en">alfa</span>
+                </div>
+                <div class="item-title">تذكرة الباص</div>
+            </div>
+            <div class="item-amount">-3.000</div>
+        </div>
+
+        <div class="expense-item">
+            <div class="item-right">
+                <div class="icon-circle bg-rent"><i class="fas fa-file-invoice-dollar"></i></div>
+                <div class="item-title">إيجار الغرفة</div>
+            </div>
+            <div class="item-amount">-40.000</div>
+        </div>
+
+        <div class="expense-item">
+            <div class="item-right">
+                <div class="icon-circle bg-shopping"><i class="fas fa-shopping-bag"></i></div>
+                <div class="item-title">الشرقية للتخفيضات</div>
+            </div>
+            <div class="item-amount">-29.255</div>
+        </div>
+
+        <div class="expense-item">
+            <div class="item-right">
+                <div class="icon-circle bg-burger"><i class="fas fa-hamburger"></i></div>
+                <div class="item-title">العشاء - برجر ع البال</div>
+            </div>
+            <div class="item-amount">-2.200</div>
+        </div>
+
+        <div class="expense-item">
+            <div class="item-right">
+                <div class="icon-circle icon-logo">
+                    <span class="txt-ar">المصاريف</span>
+                    <span class="txt-en">alfa</span>
+                </div>
+                <div class="item-title">ماء - البقالة</div>
+            </div>
+            <div class="item-amount">-0.300</div>
+        </div>
+
+        <div class="expense-item">
+            <div class="item-right">
+                <div class="icon-circle icon-logo">
+                    <span class="txt-ar">المصاريف</span>
+                    <span class="txt-en">alfa</span>
+                </div>
+                <div class="item-title">لبن- البقالة</div>
+            </div>
+            <div class="item-amount">-0.425</div>
+        </div>
+
+        <div class="expense-item">
+            <div class="item-right">
+                <div class="icon-circle bg-dinner"><i class="fas fa-concierge-bell"></i></div>
+                <div class="item-title">وجبة عشاء</div>
+            </div>
+            <div class="item-amount">-1.000</div>
+        </div>
+
+    </div>
+
+    <button class="fab">
+        <i class="fas fa-plus" style="font-weight: normal;"></i>
+    </button>
+
+</div>
+
+</body>
+</html>
