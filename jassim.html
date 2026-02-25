@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صفحة رئيسية</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* إعادة ضبط الإعدادات الافتراضية للمتصفح */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #f4f4f9; /* لون خلفية الصفحة (رمادي فاتح) لإبراز الشريط الأسود */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* تصميم الشريط العلوي */
+        .top-bar {
+            background-color: #0b0b0b; /* لون أسود أنيق */
+            height: 70px;
+            display: flex;
+            justify-content: space-between; /* توزيع العناصر على الأطراف والمنتصف */
+            align-items: center; /* توسيط عمودي */
+            padding: 0 30px; /* مسافة داخلية من اليمين واليسار */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* ظل خفيف أسفل الشريط */
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        /* تصميم الأيقونات */
+        .top-bar .icon {
+            color: #ffffff;
+            font-size: 22px;
+            cursor: pointer;
+            transition: color 0.3s ease, transform 0.3s ease;
+            width: 30px; /* توحيد العرض لضمان بقاء الشعار في المنتصف تماماً */
+            text-align: center;
+        }
+
+        /* تأثير عند تمرير الماوس على الأيقونات */
+        .top-bar .icon:hover {
+            color: #d1d1d1;
+            transform: scale(1.1); /* تكبير بسيط */
+        }
+
+        /* تصميم الشعار */
+        .top-bar .logo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1; /* يأخذ المساحة المتبقية لضمان التوسيط */
+        }
+
+        .top-bar .logo img {
+            max-height: 45px; /* أقصى ارتفاع للشعار ليتناسب مع حجم الشريط */
+            width: auto;
+            border-radius: 4px; /* زوايا دائرية خفيفة إذا لزم الأمر */
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+
+        .top-bar .logo img:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-bar">
+        
+        <div class="icon">
+            <i class="fa-solid fa-bars"></i>
+        </div>
+
+        <div class="logo">
+            <img src="/jassim.gif" alt="شعار الموقع">
+        </div>
+
+        <div class="icon">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+
+    </header>
+
+    </body>q
+</html>
