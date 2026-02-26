@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدونة طريق - للثقافة والأخبار</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* المتغيرات الأساسية للألوان */
+        :root {
+            --bg-color: #F5EFE4;
+            --accent-color: #BF6D4A;
+            --text-dark: #2C2C2C;
+            --text-light: #5A5A5A;
+            --card-bg: #FFFFFF;
+        }
+
+        /* الإعدادات العامة */
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Tajawal', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* تصميم الرأس (Header) */
+        header {
+            background-color: transparent; /* خلفية شفافة كما طلبت */
+            padding: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-icons i {
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-left: 15px;
+            transition: opacity 0.3s ease;
+        }
+
+        .header-icons i:hover {
+            opacity: 0.8;
+        }
+
+        .logo {
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .logo img {
+            max-height: 60px; /* يمكنك تعديل الحجم حسب الحاجة */
+        }
+
+        /* قسم المقال الرئيسي */
+        .featured-section {
+            margin-top: 20px;
+            margin-bottom: 50px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px; /* حواف دائرية قليلاً */
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .featured-card img {
+            width: 100%;
+            height: 450px;
+            object-fit: cover;
+        }
+
+        .featured-card .content {
+            padding: 25px;
+        }
+
+        .category-tag {
+            color: var(--accent-color);
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .featured-card h1 {
+            margin: 0 0 15px 0;
+            font-size: 2rem;
+            color: var(--text-dark);
+        }
+
+        .featured-card p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-bottom: 0;
+        }
+
+        /* قسم المقالات الأخرى */
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            border-right: 4px solid var(--accent-color);
+            padding-right: 10px;
+        }
+
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 60px;
+        }
+
+        .small-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .small-card .content {
+            padding: 15px;
+        }
+
+        .small-card h3 {
+            margin: 10px 0 0 0;
+            font-size: 1.2rem;
+        }
+
+        /* متجاوب مع الشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .featured-card img {
+                height: 250px;
+            }
+            .featured-card h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="header-icons">
+                <i class="fa-solid fa-bars" title="القائمة"></i>
+            </div>
+            
+            <div class="logo">
+                <a href="#">
+                    <img src="/tareeq.png" alt="شعار الموقع">
+                </a>
+            </div>
+            
+            <div class="header-icons" style="text-align: left;">
+                <i class="fa-solid fa-magnifying-glass" title="بحث"></i>
+            </div>
+        </header>
+
+        <main>
+            <section class="featured-section">
+                <article class="card featured-card">
+                    <a href="#">
+                        <img src="https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&q=80&w=1000" alt="صورة المقال الرئيسي">
+                        <div class="content">
+                            <span class="category-tag">ثقافة وأدب</span>
+                            <h1>تأثير العمارة الإسلامية على الفنون الحديثة</h1>
+                            <p>جولة استكشافية في جذور التصميم وتأثير الزخارف الهندسية القديمة على المدارس المعمارية المعاصرة في مختلف أنحاء العالم.</p>
+                        </div>
+                    </a>
+                </article>
+            </section>
+
+            <section class="other-articles">
+                <h2 class="section-title">أحدث المقالات</h2>
+                
+                <div class="articles-grid">
+                    <article class="card small-card">
+                        <a href="#">
+                            <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&q=80&w=600" alt="مقال 1">
+                            <div class="content">
+                                <span class="category-tag">مقالات رأي</span>
+                                <h3>مستقبل القراءة في عصر الشاشات الذكية</h3>
+                            </div>
+                        </a>
+                    </article>
+
+                    <article class="card small-card">
+                        <a href="#">
+                            <img src="https://images.unsplash.com/photo-1518998053401-a4149e69f3e1?auto=format&fit=crop&q=80&w=600" alt="مقال 2">
+                            <div class="content">
+                                <span class="category-tag">تاريخ</span>
+                                <h3>مخطوطات نادرة تعود للنور بعد قرون</h3>
+                            </div>
+                        </a>
+                    </article>
+
+                    <article class="card small-card">
+                        <a href="#">
+                            <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&q=80&w=600" alt="مقال 3">
+                            <div class="content">
+                                <span class="category-tag">فنون</span>
+                                <h3>كيف نقرأ اللوحة التشكيلية؟ دليل للمبتدئين</h3>
+                            </div>
+                        </a>
+                    </article>
+                </div>
+            </section>
+        </main>
+    </div>
+
+</body>
+</html>
