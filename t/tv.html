@@ -52,10 +52,6 @@
       transition: transform 0.3s ease;
     }
     
-    header img:hover {
-      transform: scale(1.05);
-    }
-    
     .user-profile {
       width: 45px;
       height: 45px;
@@ -66,7 +62,6 @@
       justify-content: center;
       color: white;
       font-weight: bold;
-      cursor: pointer;
       box-shadow: var(--shadow);
     }
     
@@ -109,42 +104,34 @@
       display: flex;
       overflow-x: auto;
       scroll-behavior: smooth;
-      scrollbar-width: none; /* Firefox */
+      scrollbar-width: none;
       padding-bottom: 20px;
+      gap: 1.5vw; /* استخدام gap بدلاً من margin لتجنب مشاكل التمرير */
     }
     
     .featured-carousel::-webkit-scrollbar {
-      display: none; /* Chrome, Safari, Opera */
+      display: none;
     }
     
     .featured-movie {
       flex: 0 0 auto;
       width: 28vw;
-      height: 15.75vw; /* 16:9 aspect ratio */
+      height: 15.75vw;
       background: var(--card-bg);
-      margin-left: 1.5vw;
       border-radius: var(--border-radius);
       overflow: hidden;
       position: relative;
       transition: transform var(--transition-speed), box-shadow var(--transition-speed), border-color var(--transition-speed);
       box-shadow: var(--shadow);
-      border: 2px solid transparent;
+      border: 3px solid transparent; /* زيادة سمك الإطار للتلفاز */
     }
     
-    .featured-movie:first-child {
-      margin-left: 0;
-    }
-    
-    .featured-movie.selected {
+    /* التركيز (التحديد بالريموت) */
+    .featured-movie.selected, .featured-movie:focus {
+      outline: none;
       transform: translateY(-10px) scale(1.03);
-      box-shadow: 0 15px 30px rgba(0,0,0,0.7);
+      box-shadow: 0 15px 30px rgba(229, 9, 20, 0.4);
       border-color: var(--highlight-color);
-    }
-
-    .featured-movie:focus {
-        outline: none;
-        border-color: var(--highlight-color);
-        transform: translateY(-10px) scale(1.03);
     }
     
     .featured-movie img {
@@ -152,10 +139,6 @@
       height: 100%;
       object-fit: cover;
       transition: transform var(--transition-speed);
-    }
-    
-    .featured-movie.selected img {
-      transform: scale(1.05);
     }
     
     .movie-info {
@@ -169,7 +152,7 @@
       transition: opacity var(--transition-speed);
     }
     
-    .featured-movie.selected .movie-info {
+    .featured-movie.selected .movie-info, .featured-movie:focus .movie-info {
       opacity: 1;
     }
     
@@ -232,8 +215,8 @@
       overflow-x: auto;
       scroll-behavior: smooth;
       scrollbar-width: none;
-      padding: 0 3vw;
-      position: relative;
+      padding: 0 3vw 20px;
+      gap: 1.5vw;
     }
     
     .carousel::-webkit-scrollbar {
@@ -245,29 +228,21 @@
       width: 12vw;
       height: 18vw;
       background: var(--card-bg);
-      margin-left: 1.5vw;
       border-radius: var(--border-radius);
       overflow: hidden;
       position: relative;
       transition: transform var(--transition-speed), box-shadow var(--transition-speed), border-color var(--transition-speed);
       box-shadow: var(--shadow);
-      border: 2px solid transparent;
+      border: 3px solid transparent;
     }
     
-    .movie:first-child {
-      margin-left: 0;
-    }
-    
-    .movie.selected {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    /* التركيز (التحديد بالريموت) */
+    .movie.selected, .movie:focus {
+      outline: none;
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 10px 25px rgba(229, 9, 20, 0.4);
       border-color: var(--highlight-color);
-    }
-
-    .movie:focus {
-        outline: none;
-        border-color: var(--highlight-color);
-        transform: translateY(-5px);
+      z-index: 10;
     }
     
     .movie img {
@@ -283,7 +258,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.9);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -309,72 +284,6 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
-    
-    /* تحسينات للجوال */
-    @media (max-width: 768px) {
-      header {
-        right: 15px;
-        top: 10px;
-      }
-      
-      header img {
-        height: 40px;
-      }
-      
-      .user-profile {
-        width: 35px;
-        height: 35px;
-        font-size: 0.8rem;
-      }
-      
-      #app {
-        padding-top: 70px;
-      }
-      
-      .featured-section {
-        margin: 20px 0 40px;
-      }
-      
-      .featured-title {
-        font-size: 1.5rem;
-        margin-bottom: 15px;
-      }
-      
-      .featured-movie {
-        width: 75vw;
-        height: 42.2vw; /* 16:9 aspect ratio */
-      }
-      
-      .movie-title {
-        font-size: 1rem;
-      }
-      
-      .movie-description {
-        font-size: 0.8rem;
-      }
-      
-      .section-title {
-        font-size: 1.3rem;
-        margin: 10px 5vw 15px;
-      }
-      
-      .movie {
-        width: 30vw;
-        height: 45vw;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .featured-movie {
-        width: 85vw;
-        height: 47.8vw;
-      }
-      
-      .movie {
-        width: 40vw;
-        height: 60vw;
-      }
-    }
   </style>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -385,15 +294,15 @@
     <div class="user-profile">م</div>
   </header>
   
-  <div id="app">
-    </div>
+  <div id="app"></div>
   
-  <div class="loader">
+  <div class="loader" id="loader">
     <div class="spinner"></div>
     <div class="loader-text">جاري تحميل الأفلام...</div>
   </div>
 
   <script>
+    // 1. إعدادات فايربيس
     const firebaseConfig = {
       apiKey: "AIzaSyDErdK7mjrXUtBYR28U7JIpbFi5RHWM9zM",
       authDomain: "momentschat.firebaseapp.com",
@@ -407,46 +316,36 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let currentSectionIndex = 0;
-    let currentMovieIndex = 0;
-    let featuredMovieIndex = 0;
-    let activeElement = null; // لتتبع العنصر المحدد حاليا
+    // 2. إدارة حالة التنقل (الشبكة)
+    let uiMatrix = []; // المصفوفة التي ستحمل كل العناصر القابلة للتحديد [صفوف][أعمدة]
+    let navState = { r: 0, c: 0 }; // r = رقم الصف، c = رقم العمود
 
-    function loadVideos() {
-      const app = document.getElementById('app');
-      const loader = document.querySelector('.loader');
-      
-      // Clear cache on explicit page reload
-      if (performance.navigation.type === 1) { // TYPE_RELOAD is 1
+    // 3. الدالة الرئيسية
+    function initApp() {
+      setupKeyboardNavigation(); // نقوم بتعريف أزرار الكيبورد مرة واحدة فقط
+      fetchData();
+    }
+
+    // 4. جلب البيانات
+    function fetchData() {
+      const loader = document.getElementById('loader');
+      loader.style.display = 'flex';
+
+      // مسح الكاش عند التحديث الإجباري
+      if (performance.navigation && performance.navigation.type === 1) {
           localStorage.removeItem('cachedVideos');
           localStorage.removeItem('cacheTimestamp');
-          console.log('Cache cleared due to page refresh.');
       }
 
       const cachedVideos = localStorage.getItem('cachedVideos');
       const cacheTimestamp = localStorage.getItem('cacheTimestamp');
       const oneHour = 60 * 60 * 1000;      
       
-      const savedState = localStorage.getItem('appState');
-      if (savedState) {
-        try {
-          const state = JSON.parse(savedState);
-          currentSectionIndex = state.currentSectionIndex || 0;
-          currentMovieIndex = state.currentMovieIndex || 0;
-          featuredMovieIndex = state.featuredMovieIndex || 0;
-        } catch (e) {
-          console.error("Error parsing saved state:", e);
-        }
-      }
-      
       if (cachedVideos && cacheTimestamp && (Date.now() - parseInt(cacheTimestamp)) < oneHour) {
         buildUI(JSON.parse(cachedVideos));
-        initNavigation();
         loader.style.display = 'none';
       } else {
-        const videosRef = db.ref("JTV_Cartoon").orderByKey();
-        
-        videosRef.once("value", (snapshot) => {
+        db.ref("JTV_Cartoon").orderByKey().once("value", (snapshot) => {
           const videos = snapshot.val();
           if (!videos) {
             loader.style.display = 'none';
@@ -465,285 +364,194 @@
           localStorage.setItem('cacheTimestamp', Date.now().toString());
           
           buildUI(categorized);
-          initNavigation();
           loader.style.display = 'none';
         }).catch((error) => {
           console.error("Error loading videos:", error);
           loader.style.display = 'none';
         });
       }
-      
-      function buildUI(categorized) {
-        app.innerHTML = '';
-        
-        const categoryNames = Object.keys(categorized);
-        if (categoryNames.length > 0) {
-          const firstCategory = categoryNames[0];
-          createFeaturedSection(firstCategory, categorized[firstCategory]);
-        }
-        
-        categoryNames.forEach((catName, i) => {
-          createRegularSection(catName, categorized[catName], i);
-        });
-        
-        // إعادة تعيين العنصر المحدد بناءً على الحالة المحفوظة
-        setTimeout(() => {
-            if (savedState && performance.navigation.type !== 1) { // Don't restore state on reload
-                const state = JSON.parse(savedState);
-                if (state.activeElementType === 'featured') {
-                    const featuredMovies = document.querySelectorAll('.featured-movie');
-                    if (featuredMovies[featuredMovieIndex]) {
-                        activeElement = featuredMovies[featuredMovieIndex];
-                    }
-                } else {
-                    const sections = document.querySelectorAll('.section');
-                    if (sections[currentSectionIndex]) {
-                        const movies = sections[currentSectionIndex].querySelectorAll('.movie');
-                        if (movies[currentMovieIndex]) {
-                            activeElement = movies[currentMovieIndex];
-                        }
-                    }
-                }
-            } else {
-                // إذا لم تكن هناك حالة محفوظة أو تم تحديث الصفحة، حدد أول عنصر مميز
-                const featuredMovies = document.querySelectorAll('.featured-movie');
-                if (featuredMovies.length > 0) {
-                    activeElement = featuredMovies[0];
-                    featuredMovieIndex = 0; // Reset featured index
-                    currentSectionIndex = 0; // Reset section index
-                    currentMovieIndex = 0; // Reset movie index
-                }
-            }
-            updateSelection();
-        }, 0); // استخدم setTimeout لتأخير التنفيذ بعد بناء الـ DOM
-      }
-      
-      function createFeaturedSection(categoryName, videos) {
-        const featuredSection = document.createElement('div');
-        featuredSection.className = 'featured-section';
-        featuredSection.dataset.sectionType = 'featured';
-        
-        const title = document.createElement('div');
-        title.className = 'featured-title';
-        title.textContent = categoryName;
-        
-        const carousel = document.createElement('div');
-        carousel.className = 'featured-carousel';
-        
-        videos.forEach((video, j) => {
-          const movie = document.createElement('div');
-          movie.className = 'featured-movie';
-          movie.tabIndex = 0; // لجعله قابلاً للتركيز عليه باللوحة المفاتيح
-          
-          const img = document.createElement('img');
-          img.src = video.cover_URL || 'https://via.placeholder.com/400x225?text=No+Image';
-          img.alt = video.title || '';
-          
-          const info = document.createElement('div');
-          info.className = 'movie-info';
-          
-          const movieTitle = document.createElement('div');
-          movieTitle.className = 'movie-title';
-          movieTitle.textContent = video.title || 'بدون عنوان';
-          
-          const movieDesc = document.createElement('div');
-          movieDesc.className = 'movie-description';
-          movieDesc.textContent = video.description || 'لا يوجد وصف متوفر';
-          
-          info.appendChild(movieTitle);
-          info.appendChild(movieDesc);
-          
-          movie.appendChild(img);
-          movie.appendChild(info);
-          movie.dataset.id = video.id;
-          movie.dataset.index = j; // إضافة index لسهولة التتبع
-          
-          movie.onclick = () => {
-            saveAppState();
-            window.location.href = `series.html?id=${video.id}`;
-          };
-          
-          carousel.appendChild(movie);
-        });
-        
-        featuredSection.appendChild(title);
-        featuredSection.appendChild(carousel);
-        app.appendChild(featuredSection);
-      }
-      
-      function createRegularSection(categoryName, videos, index) {
-        const section = document.createElement('div');
-        section.className = 'section';
-        section.dataset.sectionIndex = index;
-        section.dataset.sectionType = 'regular';
-        
-        const title = document.createElement('div');
-        title.className = 'section-title';
-        title.textContent = "محتوى جديد";
-        
-        const carousel = document.createElement('div');
-        carousel.className = 'carousel';
-        
-        videos.forEach((video, j) => {
-          const movie = document.createElement('div');
-          movie.className = 'movie';
-          movie.tabIndex = 0; // لجعله قابلاً للتركيز عليه باللوحة المفاتيح
-          
-          const img = document.createElement('img');
-          img.src = video.cover_URL || 'https://via.placeholder.com/300x450?text=No+Image';
-          img.alt = video.title || '';
-          
-          movie.appendChild(img);
-          movie.dataset.id = video.id;
-          movie.dataset.index = j; // إضافة index لسهولة التتبع
-          movie.dataset.sectionIndex = index; // إضافة sectionIndex لتحديد القسم الذي ينتمي إليه
-          
-          movie.onclick = () => {
-            saveAppState();
-            window.location.href = `series.html?id=${video.id}`;
-          };
-          
-          carousel.appendChild(movie);
-        });
-        
-        section.appendChild(title);
-        section.appendChild(carousel);
-        app.appendChild(section);
-      }
-      
-      function saveAppState() {
-        const state = {
-          currentSectionIndex,
-          currentMovieIndex,
-          featuredMovieIndex,
-          activeElementType: activeElement ? (activeElement.classList.contains('featured-movie') ? 'featured' : 'regular') : null,
-          activeElementId: activeElement ? activeElement.dataset.id : null
-        };
-        localStorage.setItem('appState', JSON.stringify(state));
-      }
-      
-      function updateSelection() {
-        // إزالة التحديد من جميع العناصر أولاً
-        document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+    }
 
-        if (activeElement) {
-            activeElement.classList.add('selected');
-            activeElement.focus(); // جعل العنصر المحدد يحصل على التركيز
-            
-            // التمرير إلى العنصر المحدد إذا لم يكن مرئياً بالكامل
-            if (activeElement.parentElement.classList.contains('featured-carousel') || activeElement.parentElement.classList.contains('carousel')) {
-                activeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-            }
-            
-            // تحديد القسم النشط إذا كان العنصر المحدد في قسم عادي
-            if (activeElement.classList.contains('movie')) {
-                const section = activeElement.closest('.section');
-                if (section) {
-                    section.classList.add('selected');
-                    // التمرير إلى عنوان القسم
-                    section.querySelector('.section-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            } else if (activeElement.classList.contains('featured-movie')) {
-                const featuredSection = document.querySelector('.featured-section');
-                if (featuredSection) {
-                    featuredSection.classList.add('selected');
-                    // التمرير إلى عنوان القسم المميز
-                    featuredSection.querySelector('.featured-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            }
-        }
-        saveAppState();
+    // 5. بناء واجهة المستخدم
+    function buildUI(categorized) {
+      const app = document.getElementById('app');
+      app.innerHTML = '';
+      uiMatrix = []; // تصفير مصفوفة التحديد
+
+      const categoryNames = Object.keys(categorized);
+      if (categoryNames.length === 0) return;
+
+      // بناء القسم المميز (الصف الأول)
+      const firstCategory = categoryNames[0];
+      createFeaturedSection(app, firstCategory, categorized[firstCategory]);
+
+      // بناء الأقسام العادية (باقي الصفوف)
+      categoryNames.forEach((catName, index) => {
+        createRegularSection(app, catName, categorized[catName]);
+      });
+
+      // استرجاع موقع التحديد الأخير إذا كان موجوداً
+      const savedState = localStorage.getItem('tvNavState');
+      if (savedState) {
+        try { navState = JSON.parse(savedState); } catch(e) {}
       }
-      
-      function initNavigation() {
-        let featuredMovies = document.querySelectorAll('.featured-movie');
-        let sections = document.querySelectorAll('.section');
-        
-        // تعيين العنصر النشط الأولي بعد بناء الـ UI
-        if (activeElement === null) {
-            if (featuredMovies.length > 0) {
-                activeElement = featuredMovies[featuredMovieIndex];
-            } else if (sections.length > 0 && sections[currentSectionIndex]) {
-                const movies = sections[currentSectionIndex].querySelectorAll('.movie');
-                if (movies.length > 0) {
-                    activeElement = movies[currentMovieIndex];
-                }
-            }
-        }
-        updateSelection();
 
-        document.addEventListener('keydown', (e) => {
-            if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Enter'].includes(e.key)) {
-                e.preventDefault();
-            }
+      // التأكد من أن التحديد لا يتجاوز العناصر الموجودة فعلياً
+      if (navState.r >= uiMatrix.length) navState.r = 0;
+      if (uiMatrix.length > 0 && navState.c >= uiMatrix[navState.r].length) navState.c = 0;
 
-            let newActiveElement = activeElement;
-
-            if (activeElement && activeElement.classList.contains('featured-movie')) {
-                // التنقل داخل القسم المميز
-                if (e.key === 'ArrowLeft' && featuredMovieIndex < featuredMovies.length - 1) {
-                    featuredMovieIndex++;
-                    newActiveElement = featuredMovies[featuredMovieIndex];
-                } else if (e.key === 'ArrowRight' && featuredMovieIndex > 0) {
-                    featuredMovieIndex--;
-                    newActiveElement = featuredMovies[featuredMovieIndex];
-                } else if (e.key === 'ArrowDown') {
-                    // الانتقال من القسم المميز إلى أول قسم عادي
-                    if (sections.length > 0) {
-                        currentSectionIndex = 0;
-                        currentMovieIndex = 0;
-                        newActiveElement = sections[currentSectionIndex].querySelectorAll('.movie')[currentMovieIndex];
-                    }
-                } else if (e.key === 'Enter') {
-                    if (activeElement) {
-                        saveAppState();
-                        window.location.href = `series.html?id=${activeElement.dataset.id}`;
-                    }
-                    return;
-                }
-            } else if (activeElement && activeElement.classList.contains('movie')) {
-                // التنقل داخل الأقسام العادية
-                const currentMovies = sections[currentSectionIndex].querySelectorAll('.movie');
-
-                if (e.key === 'ArrowLeft' && currentMovieIndex < currentMovies.length - 1) {
-                    currentMovieIndex++;
-                    newActiveElement = currentMovies[currentMovieIndex];
-                } else if (e.key === 'ArrowRight' && currentMovieIndex > 0) {
-                    currentMovieIndex--;
-                    newActiveElement = currentMovies[currentMovieIndex];
-                } else if (e.key === 'ArrowDown') {
-                    if (currentSectionIndex < sections.length - 1) {
-                        currentSectionIndex++;
-                        currentMovieIndex = 0; // إعادة تعيين الفهرس الأفقي عند الانتقال لقسم جديد
-                        newActiveElement = sections[currentSectionIndex].querySelectorAll('.movie')[currentMovieIndex];
-                    }
-                } else if (e.key === 'ArrowUp') {
-                    if (currentSectionIndex > 0) {
-                        currentSectionIndex--;
-                        currentMovieIndex = 0; // إعادة تعيين الفهرس الأفقي
-                        newActiveElement = sections[currentSectionIndex].querySelectorAll('.movie')[currentMovieIndex];
-                    } else if (featuredMovies.length > 0) {
-                        // الانتقال من أول قسم عادي إلى القسم المميز
-                        newActiveElement = featuredMovies[featuredMovieIndex];
-                    }
-                } else if (e.key === 'Enter') {
-                    if (activeElement) {
-                        saveAppState();
-                        window.location.href = `series.html?id=${activeElement.dataset.id}`;
-                    }
-                    return;
-                }
-            }
-            
-            if (newActiveElement && newActiveElement !== activeElement) {
-                activeElement = newActiveElement;
-                updateSelection();
-            }
-        });
+      // تفعيل التحديد المرئي
+      if (uiMatrix.length > 0) {
+        updateFocus();
       }
     }
 
-    window.addEventListener("load", loadVideos);
+    // 6. إنشاء مكونات الواجهة
+    function createFeaturedSection(container, categoryName, videos) {
+      const section = document.createElement('div');
+      section.className = 'featured-section';
+      
+      const title = document.createElement('div');
+      title.className = 'featured-title';
+      title.textContent = categoryName;
+      
+      const carousel = document.createElement('div');
+      carousel.className = 'featured-carousel';
+      
+      const rowElements = []; // مصفوفة لحفظ عناصر هذا الصف
+
+      videos.forEach((video) => {
+        const movie = document.createElement('div');
+        movie.className = 'featured-movie';
+        movie.tabIndex = 0;
+        
+        movie.innerHTML = `
+          <img src="${video.cover_URL || 'https://via.placeholder.com/400x225?text=No+Image'}" alt="${video.title || ''}">
+          <div class="movie-info">
+            <div class="movie-title">${video.title || 'بدون عنوان'}</div>
+            <div class="movie-description">${video.description || 'لا يوجد وصف متوفر'}</div>
+          </div>
+        `;
+        
+        movie.onclick = () => handleMovieClick(video.id);
+        
+        carousel.appendChild(movie);
+        rowElements.push(movie);
+      });
+      
+      section.appendChild(title);
+      section.appendChild(carousel);
+      container.appendChild(section);
+      
+      if (rowElements.length > 0) uiMatrix.push(rowElements); // إضافة الصف للمصفوفة
+    }
+
+    function createRegularSection(container, categoryName, videos) {
+      const section = document.createElement('div');
+      section.className = 'section';
+      
+      const title = document.createElement('div');
+      title.className = 'section-title';
+      title.textContent = categoryName;
+      
+      const carousel = document.createElement('div');
+      carousel.className = 'carousel';
+      
+      const rowElements = []; // مصفوفة لحفظ عناصر هذا الصف
+
+      videos.forEach((video) => {
+        const movie = document.createElement('div');
+        movie.className = 'movie';
+        movie.tabIndex = 0;
+        
+        movie.innerHTML = `<img src="${video.cover_URL || 'https://via.placeholder.com/300x450?text=No+Image'}" alt="${video.title || ''}">`;
+        
+        movie.onclick = () => handleMovieClick(video.id);
+        
+        carousel.appendChild(movie);
+        rowElements.push(movie);
+      });
+      
+      section.appendChild(title);
+      section.appendChild(carousel);
+      container.appendChild(section);
+      
+      if (rowElements.length > 0) uiMatrix.push(rowElements); // إضافة الصف للمصفوفة
+    }
+
+    // 7. إدارة النقر / الدخول للفيلم
+    function handleMovieClick(videoId) {
+      localStorage.setItem('tvNavState', JSON.stringify(navState));
+      window.location.href = `series.html?id=${videoId}`;
+    }
+
+    // 8. نظام التنقل بالريموت (السر في سلاسة التلفاز)
+    function setupKeyboardNavigation() {
+      document.addEventListener('keydown', (e) => {
+        const key = e.key;
+        if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter'].includes(key)) return;
+        
+        e.preventDefault(); // يمنع التلفاز من التمرير العشوائي
+
+        if (uiMatrix.length === 0) return;
+
+        let { r, c } = navState;
+
+        if (key === 'ArrowUp') {
+          if (r > 0) r--;
+        } else if (key === 'ArrowDown') {
+          if (r < uiMatrix.length - 1) r++;
+        } else if (key === 'ArrowLeft') {
+          // بما أن الاتجاه RTL (عربي)، اليسار يعني الذهاب للعنصر التالي (+)
+          if (c < uiMatrix[r].length - 1) c++;
+        } else if (key === 'ArrowRight') {
+          // اليمين يعني الذهاب للعنصر السابق (-)
+          if (c > 0) c--;
+        } else if (key === 'Enter') {
+          const activeEl = uiMatrix[r][c];
+          if (activeEl) activeEl.click();
+          return;
+        }
+
+        // إذا انتقلنا لصف جديد وكان أقصر من الصف السابق، اضبط العمود لآخر عنصر
+        if (c >= uiMatrix[r].length) {
+          c = uiMatrix[r].length - 1;
+        }
+
+        // تحديث الحالة
+        if (navState.r !== r || navState.c !== c) {
+          navState = { r, c };
+          updateFocus();
+        }
+      });
+    }
+
+    // 9. تحديث التحديد المرئي وتحريك الشاشة
+    function updateFocus() {
+      // إزالة التحديد من الجميع
+      document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+      
+      const activeEl = uiMatrix[navState.r][navState.c];
+      
+      if (activeEl) {
+        activeEl.classList.add('selected');
+        activeEl.focus(); // هام جداً لدعم بعض أجهزة التلفاز
+        
+        // التمرير السلس وجعل العنصر في منتصف الشاشة
+        activeEl.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center',    /* يجعل السطر في منتصف الشاشة عمودياً */
+          inline: 'center'    /* يجعل الفيلم في منتصف الشاشة أفقياً */
+        });
+
+        // إضاءة عنوان القسم النشط
+        const parentSection = activeEl.closest('.section') || activeEl.closest('.featured-section');
+        if (parentSection) parentSection.classList.add('selected');
+      }
+    }
+
+    // تشغيل التطبيق عند تحميل الصفحة
+    window.addEventListener("load", initApp);
   </script>
 </body>
 </html>
