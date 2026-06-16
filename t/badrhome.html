@@ -1,45 +1,57 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
     <title>الرئيسية - لعبة الهروب وجمع الفلافل</title>
     <style>
-        /* إعدادات الصفحة الأساسية - مطابقة للعبة */
-        body {
+        /* إعادة ضبط أساسية */
+        * {
             margin: 0;
             padding: 0;
-            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            min-height: 100dvh; /* dynamic viewport height for mobile */
             display: flex;
             justify-content: center;
             align-items: center;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: white;
+            padding: 16px;
+            /* منع التمرير الزائد */
             overflow: hidden;
         }
 
-        /* حاوية القائمة الرئيسية (تصميم زجاجي مشابه لشاشة الخسارة) */
+        /* حاوية القائمة الرئيسية – تصميم زجاجي مرن */
         .home-container {
-            background: rgba(127, 40, 143, 0.15); /* لون بنفسجي شفاف */
+            background: rgba(127, 40, 143, 0.15);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 25px;
-            padding: 50px 40px;
+            padding: clamp(20px, 6vw, 50px) clamp(16px, 5vw, 40px);
             text-align: center;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-            max-width: 500px;
-            width: 90%;
+            max-width: 540px;
+            width: 100%;
             z-index: 10;
-            animation: fadeIn 1s ease-in-out;
+            animation: fadeIn 0.8s ease-out;
+            /* ضمان عدم تجاوز الحاوية للشاشة */
+            max-height: 98vh;
+            max-height: 98dvh;
+            overflow-y: auto;
         }
 
-        /* إعدادات الشعار */
+        /* الشعار – يتكيف مع العرض */
         .logo {
-            max-width: 220px;
+            display: block;
+            max-width: min(220px, 60%);
             height: auto;
-            margin-bottom: 20px;
+            margin: 0 auto 0.8rem auto;
             filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
             transition: transform 0.3s ease;
         }
@@ -48,123 +60,170 @@
             transform: scale(1.05);
         }
 
-        /* نصوص الواجهة */
+        /* العناوين والنصوص باستخدام clamp */
         h1 {
-            color: #ffd700; /* لون ذهبي */
+            color: #ffd700;
             margin-top: 0;
-            font-size: 32px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            font-size: clamp(1.4rem, 5vw, 2.2rem);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            line-height: 1.3;
+            word-break: break-word;
         }
 
         p {
-            font-size: 18px;
+            font-size: clamp(0.9rem, 2.5vw, 1.15rem);
             line-height: 1.6;
-            margin-bottom: 35px;
+            margin: 0.8rem 0 1.8rem 0;
             color: #e0e0e0;
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        /* زر اللعب */
+        /* زر اللعب – مرن وحجمه يتغير مع الشاشة */
         button {
             background: linear-gradient(45deg, #7F288F, #C66135);
             border: none;
-            border-radius: 15px;
-            padding: 15px 45px;
+            border-radius: clamp(12px, 2vw, 18px);
+            padding: clamp(12px, 2.5vw, 18px) clamp(24px, 6vw, 50px);
             color: white;
-            font-size: 22px;
+            font-size: clamp(1rem, 3vw, 1.5rem);
             cursor: pointer;
             font-weight: bold;
             transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            width: fit-content;
+            margin: 0 auto;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 400px) {
+            button {
+                white-space: normal;
+                padding: 12px 20px;
+                width: 100%;
+                max-width: 260px;
+            }
         }
 
         button:hover {
-            transform: scale(1.08);
+            transform: scale(1.06);
             box-shadow: 0 6px 20px rgba(198, 97, 53, 0.4);
         }
 
-        /* تأثير الدخول الحركي للصفحة */
+        /* تأثير الدخول */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        /* ديكورات في الخلفية لتجميل الصفحة الرئيسية */
+        /* دوائر الديكور الخلفية – تختفي في الشاشات الصغيرة جداً لتجنب التزاحم */
         .decoration {
-            position: absolute;
+            position: fixed;
             background: rgba(255, 255, 255, 0.03);
             border-radius: 50%;
             z-index: 1;
             pointer-events: none;
         }
-        .dec-1 { width: 300px; height: 300px; top: -100px; left: -100px; }
-        .dec-2 { width: 200px; height: 200px; bottom: -50px; right: -50px; }
-
-        /* تحسينات التوافق مع الشاشات المختلفة (بدون تعديل التصميم الأساسي) */
-        @media screen and (max-width: 600px) {
-            .home-container {
-                padding: 35px 25px;
-            }
-            h1 {
-                font-size: 26px;
-            }
-            p {
-                font-size: 16px;
-                margin-bottom: 25px;
-            }
-            button {
-                padding: 14px 35px;
-                font-size: 20px;
-            }
-            .logo {
-                max-width: 160px;
-            }
-            .dec-1 { width: 200px; height: 200px; top: -70px; left: -70px; }
-            .dec-2 { width: 140px; height: 140px; bottom: -35px; right: -35px; }
+        .dec-1 {
+            width: min(300px, 40vw);
+            height: min(300px, 40vw);
+            top: -8%;
+            left: -8%;
+        }
+        .dec-2 {
+            width: min(200px, 30vw);
+            height: min(200px, 30vw);
+            bottom: -5%;
+            right: -5%;
         }
 
-        @media screen and (max-width: 400px) {
+        /* تحسينات إضافية للشاشات الصغيرة جداً */
+        @media (max-width: 480px) {
             .home-container {
-                padding: 25px 15px;
+                padding: 18px 12px;
                 border-radius: 20px;
             }
-            h1 {
-                font-size: 22px;
-            }
             p {
-                font-size: 15px;
+                max-width: 100%;
             }
-            button {
-                padding: 12px 30px;
-                font-size: 18px;
-                border-radius: 12px;
-            }
-            .logo {
-                max-width: 130px;
-                margin-bottom: 15px;
+            .dec-1,
+            .dec-2 {
+                display: none; /* إخفاء الديكور لتقليل الفوضى */
             }
         }
 
-        /* للتكيف مع الشاشات ذات الارتفاع الصغير جداً (مثل وضع الأفقي في الهواتف) */
-        @media screen and (max-height: 500px) and (orientation: landscape) {
+        /* للشاشات العريضة جداً (أفقي) نحد من ارتفاع الحاوية */
+        @media (max-height: 500px) and (orientation: landscape) {
+            body {
+                padding: 8px 16px;
+                align-items: center;
+            }
             .home-container {
-                padding: 15px 20px;
+                padding: 12px 20px;
+                max-height: 92vh;
+                max-height: 92dvh;
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                align-items: center;
+                gap: 10px 20px;
             }
             .logo {
                 max-width: 100px;
-                margin-bottom: 10px;
+                margin: 0;
+                flex: 0 0 auto;
+            }
+            .home-container h1,
+            .home-container p,
+            .home-container button {
+                flex: 0 1 auto;
+                margin: 0;
             }
             h1 {
-                font-size: 20px;
-                margin-bottom: 5px;
+                font-size: 1.2rem;
+                width: 100%;
             }
             p {
-                font-size: 14px;
-                margin-bottom: 15px;
-                line-height: 1.4;
+                font-size: 0.85rem;
+                margin: 4px 0 8px 0;
+                max-width: 100%;
             }
             button {
-                padding: 10px 25px;
-                font-size: 16px;
+                padding: 8px 18px;
+                font-size: 0.9rem;
+                white-space: nowrap;
+            }
+            .dec-1,
+            .dec-2 {
+                display: none;
+            }
+        }
+
+        /* للشاشات الصغيرة جداً جداً (أقل من 320px) */
+        @media (max-width: 340px) {
+            .home-container {
+                padding: 12px 8px;
+                border-radius: 16px;
+            }
+            h1 {
+                font-size: 1.1rem;
+            }
+            p {
+                font-size: 0.75rem;
+                margin: 0.4rem 0 1rem 0;
+            }
+            button {
+                font-size: 0.85rem;
+                padding: 10px 16px;
+                width: 100%;
             }
         }
     </style>
@@ -175,11 +234,11 @@
     <div class="decoration dec-2"></div>
 
     <div class="home-container">
-        <img src="https://tools.jassim.one/t/images/logo-badr.png" alt="شعار لعبة السيد بدر" class="logo">
-        
+        <img src="https://tools.jassim.one/t/images/logo-badr.png" alt="شعار لعبة السيد بدر" class="logo" loading="lazy" />
+
         <h1>لعبة الهروب وجمع الفلافل</h1>
         <p>ساعد السيد بدر في الهروب من أهل شعنزي وجمع أكبر قدر ممكن من الفلافل الذهبية. هل أنت مستعد للتحدي؟</p>
-        
+
         <button onclick="window.location.href='/t/badr'">ابدأ اللعب الآن</button>
     </div>
 
