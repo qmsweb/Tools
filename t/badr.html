@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة الهروب وجمع العملات</title>
+    <title>لعبة الهروب وجمع الفلافل</title>
     <style>
         /* إعدادات الصفحة الأساسية */
         body {
@@ -15,32 +15,49 @@
             color: white;
         }
 
-        /* واجهة المستخدم بتأثير Glassmorphism */
-        .glass-ui {
+        /* حاوية الفلافل (أعلى يمين الشاشة - مستديرة) */
+        #falafel-container {
             position: absolute;
             top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            right: 20px;
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 15px 30px;
+            border-radius: 30px; /* مستطيل مستدير بشكل كامل */
+            padding: 10px 25px;
             display: flex;
-            gap: 30px;
+            align-items: center;
+            gap: 12px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        #falafel-container img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+        #falafel-container span {
+            color: #ffd700; /* لون ذهبي للرقم */
+        }
+
+        /* النقاط (أسفل الفلافل - بدون حاوية) */
+        #score-container {
+            position: absolute;
+            top: 90px;
+            right: 40px; /* محاذاة مناسبة تحت حاوية الفلافل */
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
             z-index: 10;
         }
 
-        .stat {
-            font-size: 20px;
-            font-weight: bold;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-
-        .stat span {
-            color: #C66135; /* لون مميز للأرقام */
+        #score-container span {
+            color: #C66135;
         }
 
         /* شاشة نهاية اللعبة (الخسارة) */
@@ -64,6 +81,7 @@
         #gameOverScreen h1 {
             margin-top: 0;
             color: #ff4757;
+            font-size: 28px;
         }
 
         button {
@@ -101,14 +119,21 @@
 </head>
 <body>
 
-    <div class="glass-ui">
-        <div class="stat">النقاط: <span id="scoreVal">0</span></div>
-        <div class="stat">العملات: <span id="coinVal">0</span></div>
+    <!-- الواجهة الجديدة -->
+    <div id="falafel-container">
+        الفلافل 
+        <img src="images/coin.png" alt="coin"> 
+        <span id="coinVal">0</span>
+    </div>
+    
+    <div id="score-container">
+        النقاط: <span id="scoreVal">0</span>
     </div>
 
+    <!-- شاشة الخسارة المحدثة -->
     <div id="gameOverScreen">
-        <h1>أمسك بك الشرطي!</h1>
-        <p class="stat">جمعت <span id="finalCoins">0</span> عملة ذهبية</p>
+        <h1>لقد أمسك أهل شعنزي بالسيد بدر</h1>
+        <p style="font-size: 20px; font-weight: bold;">جمعت <span id="finalCoins" style="color: #ffd700;">0</span> من الفلافل</p>
         <button onclick="resetGame()">العب مرة أخرى</button>
     </div>
 
@@ -124,8 +149,8 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        // المتغيرات الأساسية للعبة
-        let gameSpeed = 5;
+        // المتغيرات الأساسية للعبة (تم تعديل السرعة لتصبح أسهل قليلاً في البداية)
+        let gameSpeed = 4.5;
         let gravity = 0.6;
         let score = 0;
         let coinsCollected = 0;
@@ -160,12 +185,21 @@
                 if (this.frameTimer % 10 === 0 && this.grounded) {
                     this.runFrame = this.runFrame === 1 ? 2 : 1;
                 } else if (!this.grounded) {
-                    this.runFrame = 1; // صورة ثابتة أثناء القفز
+                    this.runFrame = 1;
                 }
 
                 const currentImage = this.runFrame === 1 ? images.player1 : images.player2;
 
                 if (currentImage.complete && currentImage.naturalHeight !== 0) {
+                    // الحفاظ على دقة الصورة التناسبية (النسبة بين الطول والعرض)
+                    let aspect = currentImage.naturalWidth / currentImage.naturalHeight;
+                    this.height = 80; // تثبيت الارتفاع
+                    this.width = 80 * aspect; // حساب العرض ليتناسب مع أبعاد الصورة الأصلية بدون تمطيط
+
+                    // تحسين جودة الرسم
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+
                     ctx.drawImage(currentImage, this.x, this.y, this.width, this.height);
                 } else {
                     // شكل بديل في حال عدم توفر الصورة
@@ -175,13 +209,11 @@
             },
             
             update() {
-                // تطبيق الجاذبية
                 if (!this.grounded) {
                     this.dy += gravity;
                 }
                 this.y += this.dy;
 
-                // التصادم مع الأرض (أرضية اللعبة ستكون في الثلث السفلي من الشاشة)
                 const groundLevel = canvas.height - 100 - this.height;
                 if (this.y >= groundLevel) {
                     this.y = groundLevel;
@@ -201,20 +233,19 @@
             }
         };
 
-        // المصفوفات للحواجز (الشرطي/الفخاخ) والعملات
         let obstacles = [];
         let coins = [];
 
-        // فئة الفخاخ/الحواجز
+        // فئة الحواجز (تم تعديلها لتكون أسهل)
         class Obstacle {
             constructor() {
-                this.width = 40;
-                this.height = Math.random() * 40 + 40; // ارتفاع عشوائي
+                this.width = 35; // تقليل عرض الحاجز
+                this.height = Math.random() * 25 + 30; // تقليل ارتفاع الحاجز ليصبح أسهل في القفز (30 إلى 55)
                 this.x = canvas.width;
-                this.y = canvas.height - 100 - this.height; // مستقر على الأرض
+                this.y = canvas.height - 100 - this.height;
             }
             draw() {
-                ctx.fillStyle = '#ff4757'; // لون أحمر يعبر عن الخطر/الشرطي
+                ctx.fillStyle = '#ff4757'; 
                 ctx.fillRect(this.x, this.y, this.width, this.height);
             }
             update() {
@@ -223,21 +254,21 @@
             }
         }
 
-        // فئة العملات
+        // فئة العملات (الفلافل)
         class Coin {
             constructor() {
                 this.width = 30;
                 this.height = 30;
                 this.x = canvas.width;
-                // ارتفاع عشوائي للعملة لتشجيع القفز
-                this.y = canvas.height - 150 - Math.random() * 150; 
+                this.y = canvas.height - 140 - Math.random() * 120; // ارتفاع مناسب للقفز
                 this.collected = false;
             }
             draw() {
                 if (images.coin.complete && images.coin.naturalHeight !== 0) {
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
                     ctx.drawImage(images.coin, this.x, this.y, this.width, this.height);
                 } else {
-                    // شكل بديل (دائرة ذهبية)
                     ctx.beginPath();
                     ctx.arc(this.x + this.width/2, this.y + this.height/2, this.width/2, 0, Math.PI * 2);
                     ctx.fillStyle = '#ffd700';
@@ -251,47 +282,44 @@
             }
         }
 
-        // معالجة توليد العناصر العشوائية
         let spawnTimer = 0;
         function handleElements() {
             spawnTimer++;
             
-            // توليد فخ أو حاجز كل فترة
-            if (spawnTimer % 120 === 0) {
+            // جعل الحواجز تظهر بمسافات متباعدة أكثر (160 بدلاً من 120) لتسهيل اللعبة
+            if (spawnTimer % 160 === 0) {
                 obstacles.push(new Obstacle());
             }
             
-            // توليد عملة كل فترة
-            if (spawnTimer % 80 === 0) {
+            // توليد الفلافل (العملات)
+            if (spawnTimer % 90 === 0) {
                 coins.push(new Coin());
             }
 
-            // تحديث ورسم الحواجز والتصادم
             for (let i = 0; i < obstacles.length; i++) {
                 let obs = obstacles[i];
                 obs.update();
                 
-                // خوارزمية التصادم المربع (AABB)
-                if (player.x < obs.x + obs.width &&
-                    player.x + player.width > obs.x &&
-                    player.y < obs.y + obs.height &&
-                    player.y + player.height > obs.y) {
+                // تصغير منطقة التصادم (Hitbox) قليلاً لصالح اللاعب لتسهيل اللعبة
+                let hitTolerance = 8; 
+
+                if (player.x + hitTolerance < obs.x + obs.width &&
+                    player.x + player.width - hitTolerance > obs.x &&
+                    player.y + hitTolerance < obs.y + obs.height &&
+                    player.y + player.height - hitTolerance > obs.y) {
                     gameOver();
                 }
 
-                // إزالة الحواجز التي خرجت من الشاشة
                 if (obs.x + obs.width < 0) {
                     obstacles.splice(i, 1);
                     i--;
                 }
             }
 
-            // تحديث ورسم العملات والتصادم
             for (let i = 0; i < coins.length; i++) {
                 let coin = coins[i];
                 coin.update();
 
-                // تصادم الشخصية مع العملة
                 if (!coin.collected &&
                     player.x < coin.x + coin.width &&
                     player.x + player.width > coin.x &&
@@ -310,9 +338,8 @@
             }
         }
 
-        // رسم أرضية اللعبة بشكل جمالي متوافق مع الواجهة
         function drawGround() {
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)'; // زجاجي خفيف للأرضية
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
             ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
             
             ctx.beginPath();
@@ -323,7 +350,6 @@
             ctx.stroke();
         }
 
-        // الحلقة التكرارية الرئيسية للعبة
         function animate() {
             if (isGameOver) return;
             
@@ -333,15 +359,16 @@
             player.update();
             handleElements();
             
-            // زيادة النقاط وسرعة اللعبة تدريجياً
+            // زيادة النقاط
             score += 0.05;
             document.getElementById('scoreVal').innerText = Math.floor(score);
-            gameSpeed += 0.001; 
+            
+            // إبطاء تسارع اللعبة لتظل قابلة للعب
+            gameSpeed += 0.0005; 
 
             animationFrameId = requestAnimationFrame(animate);
         }
 
-        // إنهاء اللعبة
         function gameOver() {
             isGameOver = true;
             document.getElementById('gameOverScreen').style.display = 'block';
@@ -349,12 +376,11 @@
             cancelAnimationFrame(animationFrameId);
         }
 
-        // إعادة تشغيل اللعبة
         window.resetGame = function() {
             isGameOver = false;
             score = 0;
             coinsCollected = 0;
-            gameSpeed = 5;
+            gameSpeed = 4.5;
             obstacles = [];
             coins = [];
             spawnTimer = 0;
@@ -365,7 +391,6 @@
             animate();
         }
 
-        // التحكم بالقفز
         window.addEventListener('keydown', function(e) {
             if (e.code === 'Space' || e.code === 'ArrowUp') {
                 player.jump();
@@ -376,13 +401,11 @@
             player.jump();
         });
 
-        // ضبط الشاشة عند تغيير الحجم
         window.addEventListener('resize', function() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         });
 
-        // بدء اللعبة
         animate();
     </script>
 </body>
